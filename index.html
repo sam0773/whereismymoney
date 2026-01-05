@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的财富</title>
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal" style="display: flex;">
+        <div class="modal-content">
+            <h2>登录</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">用户名:</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">登录</button>
+                    <button type="button" id="registerBtn" class="btn btn-secondary">注册</button>
+                </div>
+                <div id="loginStatus" style="margin-top: 15px; color: red;"></div>
+            </form>
+        </div>
+    </div>
+
+    
+
+    <!-- 系统用户信息 -->
+    <div class="user-info">
+        <span id="currentUser" style="cursor: pointer; text-decoration: underline;"></span>
+        <button id="logoutBtn" class="btn btn-small btn-secondary">退出登录</button>
+    </div>
+
+    <!-- 用户设置模态框 -->
+    <div id="userSettingsModal" class="modal">
+        <div class="modal-content">
+            <h2>用户设置</h2>
+            
+            <!-- 选项卡切换 -->
+            <div class="settings-tabs">
+                <button class="settings-tab-btn active" data-tab="userInfo">用户信息</button>
+                <button class="settings-tab-btn" data-tab="changePassword">修改密码</button>
+                <button class="settings-tab-btn" data-tab="userList" id="userListTabBtn" style="display: none;">用户列表</button>
+                <button class="settings-tab-btn" data-tab="deleteData">删除数据</button>
+            </div>
+            
+            <!-- 用户信息选项卡 -->
+            <div id="userInfo" class="settings-tab-content active">
+                <div id="userInfoContent">
+                    <!-- 用户信息将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            
+            <!-- 修改密码选项卡 -->
+            <div id="changePassword" class="settings-tab-content">
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label for="oldPassword">旧密码:</label>
+                        <input type="password" id="oldPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">新密码:</label>
+                        <input type="password" id="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">确认新密码:</label>
+                        <input type="password" id="confirmPassword" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                    <div id="changePasswordStatus" style="margin-top: 15px; color: red;"></div>
+                </form>
+            </div>
+            
+            <!-- 用户列表选项卡 -->
+            <div id="userList" class="settings-tab-content">
+                <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f2f2f2;">
+                            <th style="border: 1px solid #ddd; padding: 8px;">序号</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">用户名</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">角色</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">创建时间</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userListContent">
+                        <!-- 用户列表将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 删除数据选项卡 -->
+            <div id="deleteData" class="settings-tab-content">
+                <div class="delete-data-content">
+                    <h3>删除数据</h3>
+                    <p class="delete-warning">警告：以下操作不可逆，请谨慎操作！</p>
+                    
+                    <div class="delete-section">
+                        <h4>定期存款数据</h4>
+                        <p>删除所有定期存款数据，包括未到期和已到期的存款记录。</p>
+                        <button id="deleteAllDeposits" class="btn btn-danger">删除所有定期存款数据</button>
+                    </div>
+                    
+                    <div class="delete-section">
+                        <h4>理财数据</h4>
+                        <p>删除所有理财数据，包括所有理财记录。</p>
+                        <button id="deleteAllFunds" class="btn btn-danger">删除所有理财数据</button>
+                    </div>
+                    
+                    <div class="delete-section" id="clearDatabaseSection" style="display: none;">
+                        <h4>清空数据库</h4>
+                        <p>删除所有用户的所有数据，包括用户信息、定期存款和理财记录。该操作不可逆！</p>
+                        <button id="clearDatabaseBtn" class="btn btn-danger">清空整个数据库</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 关闭按钮 -->
+            <div class="modal-actions" style="margin-top: 20px; text-align: center;">
+                <button id="closeSettings" class="btn btn-secondary">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>我的财富</h1>
+        
+        <!-- 选项卡切换 -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="deposit">定期存款</button>
+            <button class="tab-btn" data-tab="fund">理财</button>
+        </div>
+        
+        <!-- 定期存款 -->
+        <div id="deposit" class="tab-content active">
+            <h2>定期存款</h2>
+            
+            <!-- 银行汇总显示 -->
+            <div class="summary-container" id="summaryContainer">
+                <div class="summary-header">
+                    <h3>存款汇总信息</h3>
+                    <button id="toggleSummary" class="btn btn-small btn-secondary">隐藏</button>
+                </div>
+                <div id="summaryContent">
+                    <!-- 汇总数据 -->
+                    <div class="summary-row total-row">
+                        <span class="summary-label">当前总存款金额:</span>
+                        <span class="summary-value" id="totalAmount">¥0.00</span>
+                    </div>
+                    <div id="bankSummary"></div>
+                    <div class="summary-row total-row interest-row">
+                        <span class="summary-label">已到手利息:</span>
+                        <span class="summary-value" id="totalInterest">¥0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加存款表单 -->
+            <div class="form-container" id="addDepositContainer">
+                <div class="section-header">
+                    <h3>添加定期存款</h3>
+                    <button id="toggleAddDeposit" class="btn btn-small btn-secondary">隐藏</button>
+                </div>
+                <div id="addDepositContent">
+                    <form id="depositForm">
+                        <div class="form-row">
+                        <div class="form-group">
+                            <label for="depositBank">存款银行:</label>
+                            <input type="text" id="depositBank" list="bankOptions" required placeholder="输入或选择已有列表">
+                            <datalist id="bankOptions">
+                                <!-- 银行选项将通过JavaScript动态添加 -->
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="depositAmount">存入金额:</label>
+                            <input type="number" id="depositAmount" step="0.01" placeholder="请输入存款金额" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="depositRate">利率 (%):</label>
+                            <input type="number" id="depositRate" step="0.01" required placeholder="请输入利率">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="depositDate">存入日期:</label>
+                            <input type="text" id="depositDate" placeholder="格式：YYYYMMDD" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="depositExpiryDate">到期日:</label>
+                            <input type="text" id="depositExpiryDate" placeholder="格式：YYYYMMDD 可选择存期自动生成">
+                        </div>
+                        <div class="form-group">
+                            <label for="depositPeriod">存期:</label>
+                            <div class="period-input">
+                                <input type="number" id="depositPeriod" placeholder="请输入或根据到期日自动生成">
+                                <select id="periodUnit">
+                                    <option value="month">月</option>
+                                    <option value="year">年</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="depositInterest">利息:</label>
+                            <input type="number" id="depositInterest" step="0.01" placeholder="根据利率自动生成或输入">
+                        </div>
+                        <div class="form-group">
+                            <label for="depositRemarks">备注:</label>
+                            <input type="text" id="depositRemarks" placeholder="选填">
+                        </div>
+                        <div class="form-group" style="flex: none; min-width: 200px; display: flex; align-items: flex-end;">
+                            <button type="submit" class="btn btn-primary">添加存款</button>
+                        </div>
+                    </div>
+                        
+                        <!-- Excel导入功能按钮 -->
+                        <div class="import-section" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+                            <span style="font-weight: bold; margin-right: 15px; color: #333;">批量添加数据：</span>
+                            <input type="file" id="excelFile" accept=".xlsx,.xls" style="display: none;">
+                            <label for="excelFile" class="btn btn-primary">选择Excel文件</label>
+                            <span id="fileName" style="margin: 0 10px; color: #666;">未选择文件</span>
+                            <button id="importExcel" class="btn btn-secondary" type="button">导入数据</button>
+                            <button id="downloadTemplate" class="btn btn-secondary" type="button">下载模板</button>
+                            <span id="importStatus" style="margin-left: 10px;"></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- 筛选功能已移至表头 -->
+            
+            <!-- 存款列表 -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>存款列表</h3>
+                    <div class="search-container">
+                        <input type="text" id="depositSearch" placeholder="搜索存款记录..." class="search-input">
+                    </div>
+                    <button id="exportExcel" class="btn btn-primary">导出数据</button>
+                </div>
+                <table id="depositTable" class="filter-table">
+                    <thead>
+                        <!-- 表头行 -->
+                        <tr>
+                            <th>
+                                <div class="header-content">
+                                    <span>存款银行</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="bank" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="bank" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>利率 (%)</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="rate" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="rate" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>存期 (月)</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="period" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="period" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>存入金额</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="amount" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="amount" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>存入日期</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="date" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="date" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>到期日</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="expiryDate" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="expiryDate" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>剩余天数</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="remainingDays" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="remainingDays" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>利息</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="interest" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="interest" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>备注</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="remarks" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="remarks" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="depositTableBody">
+                        <!-- 数据将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 已到期列表 -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>已到期列表</h3>
+                </div>
+                <table id="expiredDepositTable" class="filter-table">
+                    <thead>
+                        <!-- 表头行，与存款列表相同 -->
+                        <tr>
+                            <th>
+                                <div class="header-content">
+                                    <span>存款银行</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="bank" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="bank" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>利率 (%)</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="rate" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="rate" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>存期 (月)</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="period" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="period" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>存入金额</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="amount" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="amount" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>存入日期</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="date" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="date" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>到期日</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="expiryDate" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="expiryDate" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>已到期天数</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="expiredDays" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="expiredDays" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>利息</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="interest" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="interest" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>备注</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="remarks" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="remarks" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expiredDepositTableBody">
+                        <!-- 数据将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 理财 -->
+        <div id="fund" class="tab-content">
+            <h2>理财</h2>
+            
+            <!-- 添加基金表单 -->
+            <div class="form-container">
+                <h3>添加理财</h3>
+                <form id="fundForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fundPlatform">购买平台:</label>
+                            <input type="text" id="fundPlatform" list="platformOptions" required placeholder="输入或选择已有列表">
+                            <datalist id="platformOptions">
+                                <!-- 购买平台选项将通过JavaScript动态添加 -->
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="fundName">产品名称:</label>
+                            <input type="text" id="fundName" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fundDate">购买日期:</label>
+                            <input type="text" id="fundDate" placeholder="格式：YYYYMMDD" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fundAmount">购买金额:</label>
+                            <input type="number" id="fundAmount" step="0.01" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">添加理财</button>
+                </form>
+            </div>
+            
+            <!-- 理财列表 -->
+            <div class="table-container">
+                <h3>理财列表</h3>
+                <table id="fundTable">
+                    <thead>
+                        <tr>
+                            <th>购买平台</th>
+                            <th>产品名称</th>
+                            <th>购买日期</th>
+                            <th>购买金额</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fundTableBody">
+                        <!-- 数据将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
