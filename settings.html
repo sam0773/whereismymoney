@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户设置 - 我的财富</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-image: url('images/setting-background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+        }
+        
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .settings-header h1 {
+            margin: 0;
+            color: #333;
+        }
+        .settings-header .back-btn {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .settings-header .back-btn:hover {
+            background-color: #e0e0e0;
+        }
+        .settings-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .settings-tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+        .settings-tab-btn.active {
+            color: #4CAF50;
+            border-bottom-color: #4CAF50;
+            font-weight: bold;
+        }
+        .settings-tab-btn:hover {
+            color: #4CAF50;
+            background-color: #f5f5f5;
+        }
+        .settings-tab-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-actions {
+            margin-top: 20px;
+        }
+        .delete-data-content {
+            color: #333;
+        }
+        .delete-warning {
+            color: #ff4444;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .delete-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            border-left: 4px solid #ff4444;
+        }
+        .delete-section h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        .delete-section p {
+            margin-bottom: 15px;
+            color: #666;
+        }
+        .btn-danger {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .btn-danger:hover {
+            background-color: #ff0000;
+        }
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .status-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <!-- 系统用户信息 -->
+    <div class="user-info">
+        <span id="currentUser" style="cursor: pointer; text-decoration: underline;"></span>
+        <button id="logoutBtn" class="btn btn-small btn-secondary">退出登录</button>
+    </div>
+
+    <div class="container">
+        <h1>用户设置</h1>
+        <div class="settings-header">
+            <a href="index.html" class="back-btn">返回主页</a>
+        </div>
+        
+        <!-- 选项卡切换 -->
+        <div class="settings-tabs">
+            <button class="settings-tab-btn active" data-tab="userInfo">用户信息</button>
+            <button class="settings-tab-btn" data-tab="changePassword">修改密码</button>
+            <button class="settings-tab-btn" data-tab="userList" id="userListTabBtn" style="display: none;">用户列表</button>
+            <button class="settings-tab-btn" data-tab="deleteData">数据管理</button>
+        </div>
+        
+        <!-- 用户信息选项卡 -->
+        <div id="userInfoTab" class="settings-tab-content active">
+            <div id="userInfoContent">
+                <!-- 用户信息将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 修改密码选项卡 -->
+        <div id="changePasswordTab" class="settings-tab-content">
+            <form id="changePasswordForm">
+                <div class="form-group" style="display: none;">
+                    <label for="changePasswordUsername">用户名:</label>
+                    <input type="text" id="changePasswordUsername" required autocomplete="username" value="" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="oldPassword">旧密码:</label>
+                    <input type="password" id="oldPassword" required autocomplete="current-password">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">新密码:</label>
+                    <input type="password" id="newPassword" required autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">确认新密码:</label>
+                    <input type="password" id="confirmPassword" required autocomplete="new-password">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+                <div id="changePasswordStatus" class="status-message"></div>
+            </form>
+        </div>
+        
+        <!-- 用户列表选项卡 -->
+        <div id="userListTab" class="settings-tab-content">
+            <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th style="border: 1px solid #ddd; padding: 8px; color: #333; font-weight: bold;">序号</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; color: #333; font-weight: bold;">用户名</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; color: #333; font-weight: bold;">角色</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; color: #333; font-weight: bold;">创建时间</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; color: #333; font-weight: bold;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="userListContent">
+                    <!-- 用户列表将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 删除用户弹窗 -->
+        <div id="deleteUserModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>删除用户</h2>
+                <p>警告：删除用户将同时删除该用户的所有数据，此操作不可恢复！</p>
+                <p>请输入用户名 <span id="userToDelete" style="font-weight: bold;"></span> 以确认删除。</p>
+                <div class="form-group">
+                    <label for="confirmUsername">确认用户名:</label>
+                    <input type="text" id="confirmUsername" placeholder="请输入要删除的用户名">
+                </div>
+                <div id="deleteUserStatus" style="margin: 15px 0; color: red;"></div>
+                <div class="form-actions">
+                    <button id="confirmDeleteBtn" class="btn btn-danger">确认删除</button>
+                    <button id="cancelDeleteBtn" class="btn btn-secondary">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 修改用户名弹窗 -->
+        <div id="editUsernameModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>修改用户名</h2>
+                <p>请输入新的用户名：</p>
+                <div class="form-group">
+                    <label for="newUsername">新用户名:</label>
+                    <input type="text" id="newUsername" placeholder="请输入新用户名" required>
+                </div>
+                <div id="editUsernameStatus" style="margin: 15px 0; color: red;"></div>
+                <div class="form-actions">
+                    <button id="confirmEditUsernameBtn" class="btn btn-primary">确认修改</button>
+                    <button id="cancelEditUsernameBtn" class="btn btn-secondary">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 删除数据选项卡 -->
+        <div id="deleteDataTab" class="settings-tab-content">
+            <div class="delete-data-content">
+                <h3>数据管理</h3>
+                
+                <!-- 数据备份部分 -->
+                <div class="backup-section" style="margin-bottom: 30px; padding: 15px; background-color: #f0f8ff; border-radius: 6px; border-left: 4px solid #1e90ff;">
+                    <h4>数据备份</h4>
+                    <p>备份所有数据到Excel文件。</p>
+                    <div class="backup-actions" style="margin-top: 15px;">
+                        <button id="backupCurrentUserBtn" class="btn btn-primary">备份当前用户数据</button>
+                        <button id="backupAllUsersBtn" class="btn btn-primary" style="display: none;">备份所有用户数据（管理员）</button>
+                        <button id="importDataBtn" class="btn btn-secondary" style="margin-left: 10px;">导入数据</button>
+                        <input type="file" id="importDataFile" accept=".xlsx,.xls" style="display: none;">
+                        <span id="importDataStatus" style="margin-left: 10px; color: #666;"></span>
+                    </div>
+                </div>
+                
+                <!-- 数据找回部分 -->
+                <div class="recovery-section" style="margin-bottom: 30px; padding: 15px; background-color: #fff3cd; border-radius: 6px; border-left: 4px solid #ffc107;">
+                    <h4>数据找回</h4>
+                    <p>恢复最近删除的数据。</p>
+                    
+                    <!-- 定期存款恢复表格 -->
+                    <div class="recovery-table-container" style="margin-top: 20px; margin-bottom: 20px;">
+                        <h5 style="margin-bottom: 10px;">定期存款</h5>
+                        <table id="depositsRecoveryTable" class="recovery-table" style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                            <thead style="background-color: red;">
+                                <tr>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">银行</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">利率</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">金额</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">存入日期</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">到期日期</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">删除日期</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="depositsRecoveryBody">
+                                <!-- 数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                        <div class="recovery-table-actions" style="margin-top: 10px;">
+                            <button id="showMoreDepositsBtn" class="btn btn-small btn-secondary" style="display: none;">查看更多</button>
+                            <button id="hideDepositsBtn" class="btn btn-small btn-secondary" style="display: none;">收起</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 基金恢复表格 -->
+                    <div class="recovery-table-container" style="margin-top: 20px; margin-bottom: 20px;">
+                        <h5 style="margin-bottom: 10px;">基金</h5>
+                        <table id="fundsRecoveryTable" class="recovery-table" style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                            <thead style="background-color: red;">
+                                <tr>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">平台</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">基金名称</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">交易类型</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">金额</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">日期</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">删除日期</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fundsRecoveryBody">
+                                <!-- 数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                        <div class="recovery-table-actions" style="margin-top: 10px;">
+                            <button id="showMoreFundsBtn" class="btn btn-small btn-secondary" style="display: none;">查看更多</button>
+                            <button id="hideFundsBtn" class="btn btn-small btn-secondary" style="display: none;">收起</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 理财恢复表格 -->
+                    <div class="recovery-table-container" style="margin-top: 20px; margin-bottom: 20px;">
+                        <h5 style="margin-bottom: 10px;">理财</h5>
+                        <table id="wealthRecoveryTable" class="recovery-table" style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                            <thead style="background-color: red;">
+                                <tr>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">平台</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">名称</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">交易类型</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">金额</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">日期</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">删除日期</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="wealthRecoveryBody">
+                                <!-- 数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                        <div class="recovery-table-actions" style="margin-top: 10px;">
+                            <button id="showMoreWealthBtn" class="btn btn-small btn-secondary" style="display: none;">查看更多</button>
+                            <button id="hideWealthBtn" class="btn btn-small btn-secondary" style="display: none;">收起</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 证券恢复表格 -->
+                    <div class="recovery-table-container" style="margin-top: 20px; margin-bottom: 20px;">
+                        <h5 style="margin-bottom: 10px;">证券</h5>
+                        <table id="securitiesRecoveryTable" class="recovery-table" style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                            <thead style="background-color: red;">
+                                <tr>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">券商</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">类型</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">金额</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">日期</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">删除日期</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="securitiesRecoveryBody">
+                                <!-- 数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                        <div class="recovery-table-actions" style="margin-top: 10px;">
+                            <button id="showMoreSecuritiesBtn" class="btn btn-small btn-secondary" style="display: none;">查看更多</button>
+                            <button id="hideSecuritiesBtn" class="btn btn-small btn-secondary" style="display: none;">收起</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 其它投资恢复表格 -->
+                    <div class="recovery-table-container" style="margin-top: 20px; margin-bottom: 20px;">
+                        <h5 style="margin-bottom: 10px;">其它投资</h5>
+                        <table id="otherRecoveryTable" class="recovery-table" style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                            <thead style="background-color: red;">
+                                <tr>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">名称</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">类型</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">交易类型</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">金额</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">日期</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">删除日期</th>
+                                    <th style="border: 1px solid #ddd; padding: 8px; color: white; background-color: red;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="otherRecoveryBody">
+                                <!-- 数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                        <div class="recovery-table-actions" style="margin-top: 10px;">
+                            <button id="showMoreOtherBtn" class="btn btn-small btn-secondary" style="display: none;">查看更多</button>
+                            <button id="hideOtherBtn" class="btn btn-small btn-secondary" style="display: none;">收起</button>
+                        </div>
+                    </div>
+                </div>
+                
+
+            </div>
+        </div>
+    </div>
+
+    <!-- SheetJS库 -->
+    <script src="js/xlsx.full.min.js"></script>
+    
+    <!-- 分离后的模块文件 -->
+    <script src="js/dbManager.js"></script>
+    <script>
+        // 初始化DBManager实例
+        const dbManager = new DBManager();
+        window.dbManager = dbManager;
+    </script>
+    <script src="js/auth.js"></script>
+    <script src="js/deposits.js"></script>
+    <script src="js/wealth.js"></script>
+    <script src="js/excel.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        // 初始化页面
+        async function initSettingsPage() {
+            // 检查登录状态
+            await checkLoginStatus();
+            
+            // 检查当前用户是否存在，避免未登录状态下的错误
+            const currentUser = getCurrentUser();
+            if (!currentUser) {
+                // 如果未登录，checkLoginStatus会跳转到登录页面
+                return;
+            }
+            
+            // 加载用户信息
+            loadUserInfo();
+            
+            // 检查管理员权限，显示相应的选项卡
+            if (currentUser.role === 'admin') {
+                const userListTabBtn = document.getElementById('userListTabBtn');
+                if (userListTabBtn) {
+                    userListTabBtn.style.display = 'inline-block';
+                }
+                
+
+                
+                // 显示管理员备份按钮
+                const backupAllUsersBtn = document.getElementById('backupAllUsersBtn');
+                if (backupAllUsersBtn) {
+                    backupAllUsersBtn.style.display = 'inline-block';
+                }
+                
+                // 加载用户列表
+                loadUserList();
+            }
+            
+            // 绑定设置页面特有的事件
+            bindSettingsEvents();
+        }
+        
+        // 加载用户信息
+        function loadUserInfo() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+            
+            const userInfoContent = document.getElementById('userInfoContent');
+            userInfoContent.innerHTML = `
+                <table class="user-info-table">
+                    <tr>
+                        <th>用户名</th>
+                        <td>
+                            ${currentUser.username}
+                            <button class="btn btn-small btn-primary" onclick="showEditUsernameModal()" style="margin-left: 10px;">修改</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>角色</th>
+                        <td>${currentUser.role === 'admin' ? '管理员' : '普通用户'}</td>
+                    </tr>
+                    <tr>
+                        <th>创建时间</th>
+                        <td>${new Date(currentUser.createdAt).toLocaleString()}</td>
+                    </tr>
+                </table>
+            `;
+        }
+        
+        // 加载用户列表
+        async function loadUserList() {
+            try {
+                // 调用API获取用户列表
+                const response = await fetch('/api/users');
+                if (!response.ok) {
+                    throw new Error('获取用户列表失败');
+                }
+                
+                const users = await response.json();
+                const userListContent = document.getElementById('userListContent');
+                
+                if (users.length === 0) {
+                    userListContent.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999; padding: 20px;">暂无用户数据</td></tr>';
+                    return;
+                }
+                
+                // 生成用户列表HTML
+                let userListHTML = '';
+                users.forEach((user, index) => {
+                    // 不显示删除按钮给当前登录用户和所有管理员
+                    const currentUser = getCurrentUser();
+                    const canDelete = user.username !== currentUser.username && user.role !== 'admin';
+                    
+                    userListHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${user.username}</td>
+                            <td>${user.role === 'admin' ? '管理员' : '普通用户'}</td>
+                            <td>${new Date(user.createdAt).toLocaleString()}</td>
+                            <td>
+                                ${canDelete ? `<button class="btn btn-small btn-danger" onclick="showDeleteUserModal('${user.username}')">删除</button>` : '<button class="btn btn-small btn-secondary" disabled>删除</button>'}
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                userListContent.innerHTML = userListHTML;
+            } catch (error) {
+                console.error('加载用户列表失败:', error);
+                const userListContent = document.getElementById('userListContent');
+                userListContent.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ff4444; padding: 20px;">加载用户列表失败</td></tr>';
+            }
+        }
+        
+        // 显示修改用户名模态框
+        function showEditUsernameModal() {
+            const modal = document.getElementById('editUsernameModal');
+            const statusEl = document.getElementById('editUsernameStatus');
+            const newUsernameInput = document.getElementById('newUsername');
+            
+            // 重置状态和输入
+            statusEl.textContent = '';
+            newUsernameInput.value = '';
+            
+            // 显示模态框
+            modal.style.display = 'block';
+        }
+        
+        // 关闭修改用户名模态框
+        function closeEditUsernameModal() {
+            const modal = document.getElementById('editUsernameModal');
+            modal.style.display = 'none';
+        }
+        
+        // 确认修改用户名
+        async function confirmEditUsername() {
+            const newUsername = document.getElementById('newUsername').value.trim();
+            const statusEl = document.getElementById('editUsernameStatus');
+            const currentUser = getCurrentUser();
+            
+            if (!newUsername) {
+                statusEl.textContent = '请输入新用户名';
+                return;
+            }
+            
+            if (newUsername === currentUser.username) {
+                statusEl.textContent = '新用户名与当前用户名相同';
+                return;
+            }
+            
+            try {
+                // 检查用户名是否已存在
+                const checkResponse = await fetch('/api/users/check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username: newUsername })
+                });
+                
+                const checkResult = await checkResponse.json();
+                if (checkResult.exists) {
+                    statusEl.textContent = '用户名已存在，请选择其他用户名';
+                    return;
+                }
+                
+                // 提交修改
+                const response = await fetch(`/api/users/${currentUser.username}/username`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newUsername })
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    // 更新本地存储中的用户信息
+                    currentUser.username = newUsername;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // 重新加载用户信息
+                    loadUserInfo();
+                    
+                    // 更新页面顶部的用户名显示
+                    document.getElementById('currentUser').textContent = newUsername;
+                    
+                    // 关闭模态框
+                    closeEditUsernameModal();
+                    
+                    // 显示成功提示
+                    const successEl = document.createElement('div');
+                    successEl.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 12px 20px; background-color: #4CAF50; color: white; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1000; font-weight: bold;';
+                    successEl.textContent = '用户名修改成功！';
+                    document.body.appendChild(successEl);
+                    
+                    // 3秒后自动移除提示
+                    setTimeout(() => {
+                        document.body.removeChild(successEl);
+                    }, 3000);
+                } else {
+                    statusEl.textContent = result.message || '修改用户名失败';
+                }
+            } catch (error) {
+                console.error('修改用户名失败:', error);
+                statusEl.textContent = '修改用户名失败，请重试';
+            }
+        }
+        
+        // 绑定设置页面事件
+        function bindSettingsEvents() {
+            // 选项卡切换事件
+            document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tab = this.getAttribute('data-tab');
+                    switchSettingsTab(tab);
+                    
+                    // 当切换到数据管理选项卡时，加载已删除数据
+                    if (tab === 'deleteData') {
+                        loadDeletedData();
+                    }
+                });
+            });
+            
+            // 修改密码表单提交
+            document.getElementById('changePasswordForm').addEventListener('submit', handleChangePassword);
+            
+            // 修改用户名模态框事件
+            document.getElementById('confirmEditUsernameBtn').addEventListener('click', confirmEditUsername);
+            document.getElementById('cancelEditUsernameBtn').addEventListener('click', closeEditUsernameModal);
+            
+            // 退出登录按钮点击
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            
+            // 用户名点击事件
+            document.getElementById('currentUser').addEventListener('click', function() {
+                window.location.href = 'settings.html';
+            });
+            
+            // 数据备份按钮事件
+            document.getElementById('backupCurrentUserBtn').addEventListener('click', backupCurrentUserData);
+            document.getElementById('backupAllUsersBtn').addEventListener('click', backupAllUsersData);
+            document.getElementById('importDataBtn').addEventListener('click', function() {
+                document.getElementById('importDataFile').click();
+            });
+            document.getElementById('importDataFile').addEventListener('change', handleDataImport);
+            
+            // 删除用户模态框事件
+            document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDeleteUser);
+            document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteUserModal);
+            
+            // 数据恢复按钮事件
+            document.getElementById('showMoreDepositsBtn').addEventListener('click', () => showMoreData('deposits'));
+            document.getElementById('showMoreFundsBtn').addEventListener('click', () => showMoreData('funds'));
+            document.getElementById('showMoreWealthBtn').addEventListener('click', () => showMoreData('wealth'));
+            document.getElementById('showMoreSecuritiesBtn').addEventListener('click', () => showMoreData('securities'));
+            document.getElementById('showMoreOtherBtn').addEventListener('click', () => showMoreData('other'));
+            
+            // 收起按钮事件
+            document.getElementById('hideDepositsBtn').addEventListener('click', () => hideData('deposits'));
+            document.getElementById('hideFundsBtn').addEventListener('click', () => hideData('funds'));
+            document.getElementById('hideWealthBtn').addEventListener('click', () => hideData('wealth'));
+            document.getElementById('hideSecuritiesBtn').addEventListener('click', () => hideData('securities'));
+            document.getElementById('hideOtherBtn').addEventListener('click', () => hideData('other'));
+        }
+        
+        // 备份当前用户数据
+        async function backupCurrentUserData() {
+            try {
+                // 显示备份状态
+                const statusEl = document.createElement('div');
+                statusEl.id = 'backupStatus';
+                statusEl.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 12px 20px; background-color: #4CAF50; color: white; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1000; font-weight: bold;';
+                statusEl.textContent = '正在备份数据...';
+                document.body.appendChild(statusEl);
+                
+                // 加载当前用户数据
+                await loadData();
+                
+                const currentUser = getCurrentUser();
+                const username = currentUser.username;
+                
+                // 从API获取所有数据类型，只获取当前用户的数据
+                
+                // 1. 定期存款数据
+                let deposits = [];
+                try {
+                    const depositsResponse = await fetch(`/api/deposits/${username}`);
+                    if (depositsResponse.ok) {
+                        deposits = await depositsResponse.json();
+                    }
+                } catch (e) {
+                    console.log('未获取到定期存款数据:', e);
+                }
+                
+                // 2. 基金数据
+                let funds = [];
+                try {
+                    const fundsResponse = await fetch(`/api/fund/${username}`);
+                    if (fundsResponse.ok) {
+                        funds = await fundsResponse.json();
+                    }
+                } catch (e) {
+                    console.log('未获取到基金数据:', e);
+                }
+                
+                // 3. 理财数据
+                let wealth = [];
+                try {
+                    const wealthResponse = await fetch(`/api/funds/${username}`);
+                    if (wealthResponse.ok) {
+                        wealth = await wealthResponse.json();
+                    }
+                } catch (e) {
+                    console.log('未获取到理财数据:', e);
+                }
+                
+                // 4. 证券数据（银行证券转账）
+                let securities = [];
+                try {
+                    const securitiesResponse = await fetch(`/api/bankSecuritiesTransfers/${username}`);
+                    if (securitiesResponse.ok) {
+                        securities = await securitiesResponse.json();
+                    }
+                } catch (e) {
+                    console.log('未获取到证券数据:', e);
+                }
+                
+                // 5. 其它投资数据
+                let otherInvestments = [];
+                try {
+                    const otherResponse = await fetch(`/api/other/${username}`);
+                    if (otherResponse.ok) {
+                        otherInvestments = await otherResponse.json();
+                    }
+                } catch (e) {
+                    console.log('未获取到其它投资数据:', e);
+                }
+                
+                // 检查是否所有数据类型都为空
+                if (deposits.length === 0 && funds.length === 0 && wealth.length === 0 && securities.length === 0 && otherInvestments.length === 0) {
+                    // 所有数据类型都为空，直接提示用户
+                    statusEl.textContent = '用户在系统中无数据！';
+                    statusEl.style.backgroundColor = '#ff9800';
+                    
+                    // 3秒后自动移除状态提示
+                    setTimeout(() => {
+                        document.body.removeChild(statusEl);
+                    }, 3000);
+                    
+                    return;
+                }
+                
+                // 创建工作簿
+                const wb = XLSX.utils.book_new();
+                
+                // 定义数据类型映射，确保包含5个工作表
+                const dataTypes = [
+                    { name: '定期存款', data: deposits, sheetName: '定期存款' },
+                    { name: '基金', data: funds, sheetName: '基金' },
+                    { name: '理财', data: wealth, sheetName: '理财' },
+                    { name: '证券', data: securities, sheetName: '证券' },
+                    { name: '其它投资', data: otherInvestments, sheetName: '其它投资' }
+                ];
+                
+                // 添加所有数据类型到工作簿，保留所有数据库字段
+                let totalSheets = 0;
+                for (const dataType of dataTypes) {
+                    // 直接使用原始数据，保留所有数据库字段
+                    if (dataType.data.length > 0) {
+                        const ws = XLSX.utils.json_to_sheet(dataType.data);
+                        XLSX.utils.book_append_sheet(wb, ws, dataType.sheetName);
+                        totalSheets++;
+                    }
+                    // 更新进度
+                    statusEl.textContent = `正在备份${dataType.name}... (${totalSheets}/${dataTypes.length})`;
+                }
+                
+                // 优化文件命名，添加时间戳
+                const now = new Date();
+                const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+                const fileName = `财富数据备份_${username}_${timestamp}.xlsx`;
+                
+                // 下载文件
+                XLSX.writeFile(wb, fileName);
+                
+                // 更新状态
+                statusEl.textContent = '数据备份成功！';
+                statusEl.style.backgroundColor = '#2196F3';
+                
+                // 3秒后自动移除状态提示
+                setTimeout(() => {
+                    document.body.removeChild(statusEl);
+                }, 3000);
+                
+            } catch (error) {
+                console.error('备份数据失败:', error);
+                
+                // 显示错误状态
+                const statusEl = document.getElementById('backupStatus') || document.createElement('div');
+                statusEl.id = 'backupStatus';
+                statusEl.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 12px 20px; background-color: #f44336; color: white; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1000; font-weight: bold;';
+                statusEl.textContent = '数据备份失败，请重试！';
+                
+                if (!document.getElementById('backupStatus')) {
+                    document.body.appendChild(statusEl);
+                }
+                
+                // 3秒后自动移除状态提示
+                setTimeout(() => {
+                    if (document.getElementById('backupStatus')) {
+                        document.body.removeChild(statusEl);
+                    }
+                }, 3000);
+            }
+        }
+        
+        // 备份所有用户数据（管理员）
+        async function backupAllUsersData() {
+            if (getCurrentUser().role !== 'admin') {
+                alert('只有管理员可以执行此操作');
+                return;
+            }
+            
+            try {
+                // 显示备份状态
+                const statusEl = document.createElement('div');
+                statusEl.id = 'backupStatus';
+                statusEl.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 12px 20px; background-color: #4CAF50; color: white; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1000; font-weight: bold;';
+                statusEl.textContent = '正在备份所有用户数据...';
+                document.body.appendChild(statusEl);
+                
+                // 调用API获取所有用户数据
+                const response = await fetch('/api/users');
+                if (!response.ok) {
+                    throw new Error('获取用户列表失败');
+                }
+                
+                const users = await response.json();
+                
+                // 初始化所有数据类型数组
+                const allData = {
+                    deposits: [],
+                    funds: [],
+                    wealth: [],
+                    securities: [],
+                    otherInvestments: []
+                };
+                
+                // 获取所有用户的各种数据
+                let processedUsers = 0;
+                for (const user of users) {
+                    const username = user.username;
+                    
+                    // 更新进度
+                    statusEl.textContent = `正在备份用户 ${username}... (${processedUsers + 1}/${users.length})`;
+                    
+                    // 获取定期存款数据
+                    try {
+                        const depositsResponse = await fetch(`/api/deposits/${username}`);
+                        if (depositsResponse.ok) {
+                            const deposits = await depositsResponse.json();
+                            allData.deposits.push(...deposits);
+                        }
+                    } catch (e) {
+                        console.log(`未获取到用户 ${username} 的定期存款数据:`, e);
+                    }
+                    
+                    // 获取基金数据
+                    try {
+                        const fundsResponse = await fetch(`/api/fund/${username}`);
+                        if (fundsResponse.ok) {
+                            const funds = await fundsResponse.json();
+                            allData.funds.push(...funds);
+                        }
+                    } catch (e) {
+                        console.log(`未获取到用户 ${username} 的基金数据:`, e);
+                    }
+                    
+                    // 获取理财数据
+                    try {
+                        const wealthResponse = await fetch(`/api/funds/${username}`);
+                        if (wealthResponse.ok) {
+                            const wealth = await wealthResponse.json();
+                            allData.wealth.push(...wealth);
+                        }
+                    } catch (e) {
+                        console.log(`未获取到用户 ${username} 的理财数据:`, e);
+                    }
+                    
+                    // 获取证券数据（银行证券转账）
+                    try {
+                        const securitiesResponse = await fetch(`/api/bankSecuritiesTransfers/${username}`);
+                        if (securitiesResponse.ok) {
+                            const securities = await securitiesResponse.json();
+                            allData.securities.push(...securities);
+                        }
+                    } catch (e) {
+                        console.log(`未获取到用户 ${username} 的证券数据:`, e);
+                    }
+                    
+                    // 获取其它投资数据
+                    try {
+                        const otherResponse = await fetch(`/api/other/${username}`);
+                        if (otherResponse.ok) {
+                            const otherInvestments = await otherResponse.json();
+                            allData.otherInvestments.push(...otherInvestments);
+                        }
+                    } catch (e) {
+                        console.log(`未获取到用户 ${username} 的其它投资数据:`, e);
+                    }
+                    
+                    processedUsers++;
+                }
+                
+                // 检查是否所有数据类型都为空
+                if (allData.deposits.length === 0 && allData.funds.length === 0 && allData.wealth.length === 0 && allData.securities.length === 0 && allData.otherInvestments.length === 0) {
+                    // 所有数据类型都为空，直接提示用户
+                    statusEl.textContent = '系统中无数据！';
+                    statusEl.style.backgroundColor = '#ff9800';
+                    
+                    // 3秒后自动移除状态提示
+                    setTimeout(() => {
+                        document.body.removeChild(statusEl);
+                    }, 3000);
+                    
+                    return;
+                }
+                
+                // 创建工作簿
+                const wb = XLSX.utils.book_new();
+                
+                // 定义数据类型映射，确保包含5个工作表
+                const dataTypes = [
+                    { name: '定期存款', data: allData.deposits, sheetName: '定期存款' },
+                    { name: '基金', data: allData.funds, sheetName: '基金' },
+                    { name: '理财', data: allData.wealth, sheetName: '理财' },
+                    { name: '证券', data: allData.securities, sheetName: '证券' },
+                    { name: '其它投资', data: allData.otherInvestments, sheetName: '其它投资' }
+                ];
+                
+                // 添加所有数据类型到工作簿，保留所有数据库字段
+                let totalSheets = 0;
+                for (const dataType of dataTypes) {
+                    // 直接使用原始数据，保留所有数据库字段
+                    if (dataType.data.length > 0) {
+                        const ws = XLSX.utils.json_to_sheet(dataType.data);
+                        XLSX.utils.book_append_sheet(wb, ws, dataType.sheetName);
+                        totalSheets++;
+                    }
+                    // 更新进度
+                    statusEl.textContent = `正在整理${dataType.name}数据... (${totalSheets}/${dataTypes.length})`;
+                }
+                
+                // 优化文件命名，添加时间戳
+                const now = new Date();
+                const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+                const fileName = `所有用户数据备份_${timestamp}.xlsx`;
+                
+                // 下载文件
+                XLSX.writeFile(wb, fileName);
+                
+                // 更新状态
+                statusEl.textContent = '所有用户数据备份成功！';
+                statusEl.style.backgroundColor = '#2196F3';
+                
+                // 3秒后自动移除状态提示
+                setTimeout(() => {
+                    document.body.removeChild(statusEl);
+                }, 3000);
+                
+            } catch (error) {
+                console.error('备份所有用户数据失败:', error);
+                
+                // 显示错误状态
+                const statusEl = document.getElementById('backupStatus') || document.createElement('div');
+                statusEl.id = 'backupStatus';
+                statusEl.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 12px 20px; background-color: #f44336; color: white; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1000; font-weight: bold;';
+                statusEl.textContent = '备份所有用户数据失败，请重试！';
+                
+                if (!document.getElementById('backupStatus')) {
+                    document.body.appendChild(statusEl);
+                }
+                
+                // 3秒后自动移除状态提示
+                setTimeout(() => {
+                    if (document.getElementById('backupStatus')) {
+                        document.body.removeChild(statusEl);
+                    }
+                }, 3000);
+            }
+        }
+        
+        // 处理数据导入
+        function handleDataImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const statusEl = document.getElementById('importDataStatus');
+            statusEl.textContent = '正在导入数据...';
+            statusEl.style.color = 'orange';
+            
+            // 显示导入状态提示
+            const importStatus = document.createElement('div');
+            importStatus.id = 'importStatus';
+            importStatus.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 12px 20px; background-color: #4CAF50; color: white; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1000; font-weight: bold;';
+            importStatus.textContent = '正在准备导入数据...';
+            document.body.appendChild(importStatus);
+            
+            // 使用SheetJS读取文件
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // 处理导入数据
+                    let importedCount = 0;
+                    const currentUser = getCurrentUser();
+                    const username = currentUser.username;
+                    const isAdmin = currentUser.role === 'admin';
+                    
+                    // 记录导入了哪些用户的数据（仅管理员）
+                    const importedUsers = new Set();
+                    
+                    // 定义数据类型映射，支持多种工作表名
+                    const dataTypes = [
+                        {
+                            name: '定期存款',
+                            sheetNames: ['定期存款'],
+                            apiEndpoint: '/api/deposits',
+                            requiredFields: ['bank', 'rate', 'amount', 'date', 'expiryDate'],
+                            statusMessage: '正在导入定期存款数据...'
+                        },
+                        {
+                            name: '基金',
+                            sheetNames: ['基金'],
+                            apiEndpoint: '/api/fund',
+                            requiredFields: ['platform', 'name', 'amount', 'date'],
+                            statusMessage: '正在导入基金数据...'
+                        },
+                        {
+                            name: '理财',
+                            sheetNames: ['理财', '理财数据', '财富管理'],
+                            apiEndpoint: '/api/funds',
+                            requiredFields: ['platform', 'name', 'amount', 'date'],
+                            statusMessage: '正在导入理财数据...'
+                        },
+                        {
+                            name: '证券',
+                            sheetNames: ['证券', '银行证券转账'],
+                            apiEndpoint: '/api/bankSecuritiesTransfers',
+                            requiredFields: ['broker', 'type', 'amount', 'date'],
+                            statusMessage: '正在导入证券数据...'
+                        },
+                        {
+                            name: '其它投资',
+                            sheetNames: ['其它投资', '其他数据', '其他'],
+                            apiEndpoint: '/api/other',
+                            requiredFields: ['type', 'amount', 'date'],
+                            statusMessage: '正在导入其它投资数据...'
+                        }
+                    ];
+                    
+                    // 遍历所有数据类型
+                    for (const dataType of dataTypes) {
+                        // 查找匹配的工作表
+                        let sheet = null;
+                        for (const sheetName of dataType.sheetNames) {
+                            if (workbook.Sheets[sheetName]) {
+                                sheet = workbook.Sheets[sheetName];
+                                break;
+                            }
+                        }
+                        
+                        if (sheet) {
+                            // 更新状态
+                            importStatus.textContent = dataType.statusMessage;
+                            
+                            const items = XLSX.utils.sheet_to_json(sheet);
+                            for (const item of items) {
+                                // 检查必填字段
+                                const hasRequiredFields = dataType.requiredFields.every(field => {
+                                    return item[field] !== undefined && item[field] !== null && item[field] !== '';
+                                });
+                                
+                                if (hasRequiredFields) {
+                                    // 非管理员只能导入与用户名一致的数据
+                                    if (!isAdmin && item.username && item.username !== username) {
+                                        console.warn(`跳过导入：非管理员只能导入自己的数据，当前用户：${username}，导入数据用户：${item.username}`);
+                                        continue;
+                                    }
+                                    
+                                    // 确定导入的用户名
+                                    const importUsername = isAdmin ? (item.username || username) : username;
+                                    
+                                    // 确保数据关联当前用户（非管理员）或保留原用户（管理员）
+                                    if (!isAdmin) {
+                                        item.username = username;
+                                    }
+                                    
+                                    // 保存到数据库
+                                    try {
+                                        const response = await fetch(dataType.apiEndpoint, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify(item)
+                                        });
+                                        
+                                        if (response.ok) {
+                                            importedCount++;
+                                            // 记录导入了哪些用户的数据（仅管理员）
+                                            if (isAdmin) {
+                                                importedUsers.add(importUsername);
+                                            }
+                                        }
+                                    } catch (apiError) {
+                                        console.error(`导入${dataType.name}失败:`, apiError);
+                                        // 继续处理其他数据，不中断整个导入过程
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 重新加载数据，更新页面显示
+                    await loadData();
+                    
+                    // 更新状态
+                    statusEl.textContent = `导入成功，共导入${importedCount}条数据`;
+                    statusEl.style.color = 'green';
+                    
+                    // 生成导入状态消息
+                    let importMessage;
+                    if (isAdmin && importedUsers.size > 0) {
+                        importMessage = `数据导入成功！共导入${importedCount}条数据，涉及${importedUsers.size}名用户。`;
+                    } else {
+                        importMessage = `数据导入成功！共导入${importedCount}条数据。`;
+                    }
+                    
+                    importStatus.textContent = importMessage;
+                    importStatus.style.backgroundColor = '#2196F3';
+                    
+                    // 清空文件选择
+                    e.target.value = '';
+                    
+                    // 3秒后自动移除状态提示
+                    setTimeout(() => {
+                        if (document.getElementById('importStatus')) {
+                            document.body.removeChild(importStatus);
+                        }
+                    }, 3000);
+                    
+                } catch (error) {
+                    console.error('导入数据失败:', error);
+                    statusEl.textContent = '导入失败，请检查文件格式';
+                    statusEl.style.color = 'red';
+                    
+                    // 更新状态提示
+                    const importStatus = document.getElementById('importStatus') || document.createElement('div');
+                    importStatus.id = 'importStatus';
+                    importStatus.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 12px 20px; background-color: #f44336; color: white; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1000; font-weight: bold;';
+                    importStatus.textContent = '数据导入失败，请检查文件格式！';
+                    
+                    if (!document.getElementById('importStatus')) {
+                        document.body.appendChild(importStatus);
+                    }
+                    
+                    // 3秒后自动移除状态提示
+                    setTimeout(() => {
+                        if (document.getElementById('importStatus')) {
+                            document.body.removeChild(importStatus);
+                        }
+                    }, 3000);
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
+        // 删除用户相关函数
+        let userToDelete = '';
+        
+        // 显示删除用户弹窗
+        function showDeleteUserModal(username) {
+            userToDelete = username;
+            document.getElementById('userToDelete').textContent = username;
+            document.getElementById('confirmUsername').value = '';
+            document.getElementById('deleteUserStatus').textContent = '';
+            document.getElementById('deleteUserModal').style.display = 'flex';
+        }
+        
+        // 关闭删除用户弹窗
+        function closeDeleteUserModal() {
+            document.getElementById('deleteUserModal').style.display = 'none';
+            userToDelete = '';
+        }
+        
+        // 确认删除用户
+        async function confirmDeleteUser() {
+            const confirmUsername = document.getElementById('confirmUsername').value;
+            const statusEl = document.getElementById('deleteUserStatus');
+            
+            // 验证用户名
+            if (confirmUsername !== userToDelete) {
+                statusEl.textContent = '用户名输入不匹配，请重新输入';
+                return;
+            }
+            
+            try {
+                // 调用API删除用户，传递当前用户信息用于验证
+                const response = await fetch(`/api/users/${userToDelete}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ currentUser: getCurrentUser() })
+                });
+                
+                if (response.ok) {
+                    // 删除成功，刷新用户列表
+                    await loadUserList();
+                    closeDeleteUserModal();
+                    alert('用户删除成功，该用户的所有数据已删除');
+                } else {
+                    const errorData = await response.json();
+                    statusEl.textContent = '删除失败: ' + errorData.message;
+                }
+            } catch (error) {
+                console.error('删除用户失败:', error);
+                statusEl.textContent = '删除失败: ' + error.message;
+            }
+        }
+        
+        // 切换设置选项卡
+        function switchSettingsTab(tab) {
+            // 隐藏所有选项卡内容
+            document.querySelectorAll('.settings-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 移除所有选项卡按钮的激活状态
+            document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 显示选中的选项卡内容 - 检查元素是否存在
+            const tabContent = document.getElementById(`${tab}Tab`);
+            if (tabContent) {
+                tabContent.classList.add('active');
+            }
+            
+            // 添加选项卡按钮的激活状态 - 检查元素是否存在
+            const tabBtn = document.querySelector(`[data-tab="${tab}"]`);
+            if (tabBtn) {
+                tabBtn.classList.add('active');
+            }
+        }
+        
+        // 修改密码状态显示
+        function showChangePasswordStatus(message, isError = false) {
+            const statusEl = document.getElementById('changePasswordStatus');
+            statusEl.textContent = message;
+            statusEl.className = `status-message ${isError ? 'error' : 'success'}`;
+        }
+        
+        // 覆盖auth.js中的handleChangePassword函数，适配独立页面
+        const originalHandleChangePassword = window.handleChangePassword;
+        window.handleChangePassword = async function(e) {
+            e.preventDefault();
+            
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // 验证新密码和确认密码是否一致
+            if (newPassword !== confirmPassword) {
+                showChangePasswordStatus('两次输入的新密码不一致', true);
+                return;
+            }
+            
+            // 验证新密码长度
+            if (newPassword.length < 6) {
+                showChangePasswordStatus('新密码长度不能少于6位', true);
+                return;
+            }
+            
+            try {
+                const currentUser = getCurrentUser();
+                if (!currentUser) {
+                    showChangePasswordStatus('用户未登录', true);
+                    return;
+                }
+                
+                // 调用API修改密码
+                const response = await fetch(`/api/users/${currentUser.username}/password`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ oldPassword, newPassword })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    showChangePasswordStatus(errorData.message, true);
+                    return;
+                }
+                
+                showChangePasswordStatus('密码修改成功');
+                
+                // 清空表单
+                e.target.reset();
+            } catch (error) {
+                console.error('修改密码失败:', error);
+                showChangePasswordStatus('修改密码失败，请重试：' + error.message, true);
+            }
+        };
+        
+        // 加载已删除数据
+        async function loadDeletedData() {
+            const username = getCurrentUser().username;
+            
+            // 定义数据类型映射
+            const dataTypes = [
+                { 
+                    name: 'deposits', 
+                    apiEndpoint: `/api/deposits/deleted/${username}`, 
+                    tableBodyId: 'depositsRecoveryBody',
+                    showMoreBtnId: 'showMoreDepositsBtn',
+                    renderFunction: renderDepositRecoveryRow
+                },
+                { 
+                    name: 'funds', 
+                    apiEndpoint: `/api/fund/deleted/${username}`, 
+                    tableBodyId: 'fundsRecoveryBody',
+                    showMoreBtnId: 'showMoreFundsBtn',
+                    renderFunction: renderFundRecoveryRow
+                },
+                { 
+                    name: 'wealth', 
+                    apiEndpoint: `/api/funds/deleted/${username}`, 
+                    tableBodyId: 'wealthRecoveryBody',
+                    showMoreBtnId: 'showMoreWealthBtn',
+                    renderFunction: renderWealthRecoveryRow
+                },
+                { 
+                    name: 'securities', 
+                    apiEndpoint: `/api/bankSecuritiesTransfers/deleted/${username}`, 
+                    tableBodyId: 'securitiesRecoveryBody',
+                    showMoreBtnId: 'showMoreSecuritiesBtn',
+                    renderFunction: renderSecuritiesRecoveryRow
+                },
+                { 
+                    name: 'other', 
+                    apiEndpoint: `/api/other/deleted/${username}`, 
+                    tableBodyId: 'otherRecoveryBody',
+                    showMoreBtnId: 'showMoreOtherBtn',
+                    renderFunction: renderOtherRecoveryRow
+                }
+            ];
+            
+            for (const dataType of dataTypes) {
+                try {
+                    const response = await fetch(dataType.apiEndpoint);
+                    if (response.ok) {
+                        const deletedItems = await response.json();
+                        
+                        // 只显示最近3条数据
+                        const displayItems = deletedItems.slice(0, 3);
+                        
+                        // 渲染数据行
+                        const tableBody = document.getElementById(dataType.tableBodyId);
+                        tableBody.innerHTML = '';
+                        
+                        if (displayItems.length === 0) {
+                            tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999; padding: 20px;">暂无已删除数据</td></tr>';
+                        } else {
+                            displayItems.forEach(item => {
+                                const row = dataType.renderFunction(item);
+                                tableBody.appendChild(row);
+                            });
+                        }
+                        
+                        // 如果数据超过3条，显示"查看更多"按钮
+                        const showMoreBtn = document.getElementById(dataType.showMoreBtnId);
+                        if (deletedItems.length > 3) {
+                            showMoreBtn.style.display = 'inline-block';
+                            showMoreBtn.dataset.totalItems = deletedItems.length;
+                            showMoreBtn.dataset.dataType = dataType.name;
+                        } else {
+                            showMoreBtn.style.display = 'none';
+                        }
+                        
+                        // 保存完整数据到按钮上，方便后续查看更多
+                        showMoreBtn.dataset.fullData = JSON.stringify(deletedItems);
+                    }
+                } catch (error) {
+                    console.error(`加载${dataType.name}已删除数据失败:`, error);
+                }
+            }
+        }
+        
+        // 渲染定期存款恢复行
+        function renderDepositRecoveryRow(item) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.bank}</td>
+                <td>${item.rate}%</td>
+                <td>${item.amount}</td>
+                <td>${new Date(item.date).toLocaleDateString()}</td>
+                <td>${new Date(item.expiryDate).toLocaleDateString()}</td>
+                <td>${new Date(item.deleteDate).toLocaleString()}</td>
+                <td>
+                    <button class="btn btn-small btn-primary" onclick="restoreData('deposits', ${item.id})">恢复</button>
+                </td>
+            `;
+            return row;
+        }
+        
+        // 渲染基金恢复行
+        function renderFundRecoveryRow(item) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.platform}</td>
+                <td>${item.name}</td>
+                <td>${item.transactionType === 'buy' ? '购买' : '赎回'}</td>
+                <td>${item.amount}</td>
+                <td>${new Date(item.date).toLocaleDateString()}</td>
+                <td>${new Date(item.deleteDate).toLocaleString()}</td>
+                <td>
+                    <button class="btn btn-small btn-primary" onclick="restoreData('funds', ${item.id})">恢复</button>
+                </td>
+            `;
+            return row;
+        }
+        
+        // 渲染理财恢复行
+        function renderWealthRecoveryRow(item) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.platform}</td>
+                <td>${item.name}</td>
+                <td>${item.transactionType === 'buy' ? '购买' : '赎回'}</td>
+                <td>${item.amount}</td>
+                <td>${new Date(item.date).toLocaleDateString()}</td>
+                <td>${new Date(item.deleteDate).toLocaleString()}</td>
+                <td>
+                    <button class="btn btn-small btn-primary" onclick="restoreData('wealth', ${item.id})">恢复</button>
+                </td>
+            `;
+            return row;
+        }
+        
+        // 渲染证券恢复行
+        function renderSecuritiesRecoveryRow(item) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.broker}</td>
+                <td>${item.type}</td>
+                <td>${item.amount}</td>
+                <td>${new Date(item.date).toLocaleDateString()}</td>
+                <td>${new Date(item.deleteDate).toLocaleString()}</td>
+                <td>
+                    <button class="btn btn-small btn-primary" onclick="restoreData('securities', ${item.id})">恢复</button>
+                </td>
+            `;
+            return row;
+        }
+        
+        // 渲染其它投资恢复行
+        function renderOtherRecoveryRow(item) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td>${item.type}</td>
+                <td>${item.transactionType === 'buy' ? '购买' : '赎回'}</td>
+                <td>${item.amount}</td>
+                <td>${new Date(item.date).toLocaleDateString()}</td>
+                <td>${new Date(item.deleteDate).toLocaleString()}</td>
+                <td>
+                    <button class="btn btn-small btn-primary" onclick="restoreData('other', ${item.id})">恢复</button>
+                </td>
+            `;
+            return row;
+        }
+        
+        // 恢复数据
+        async function restoreData(dataType, id) {
+            // 弹窗确认
+            if (confirm('确定要恢复这条数据吗？')) {
+                try {
+                    // 定义API端点映射
+                    const apiEndpoints = {
+                        'deposits': `/api/deposits/restore/${id}`,
+                        'funds': `/api/fund/restore/${id}`,
+                        'wealth': `/api/funds/restore/${id}`,
+                        'securities': `/api/bankSecuritiesTransfers/restore/${id}`,
+                        'other': `/api/other/restore/${id}`
+                    };
+                    
+                    const response = await fetch(apiEndpoints[dataType], {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        // 恢复成功，重新加载数据
+                        loadDeletedData();
+                        // 重新加载主页面数据
+                        await loadData();
+                    } else {
+                        throw new Error('恢复数据失败');
+                    }
+                } catch (error) {
+                    console.error('恢复数据失败:', error);
+                    alert('恢复数据失败，请重试');
+                }
+            }
+        }
+        
+        // 查看更多数据
+        function showMoreData(dataType) {
+            // 定义表格映射
+            const tableMappings = {
+                'deposits': {
+                    tableBodyId: 'depositsRecoveryBody',
+                    showMoreBtnId: 'showMoreDepositsBtn',
+                    hideBtnId: 'hideDepositsBtn',
+                    renderFunction: renderDepositRecoveryRow
+                },
+                'funds': {
+                    tableBodyId: 'fundsRecoveryBody',
+                    showMoreBtnId: 'showMoreFundsBtn',
+                    hideBtnId: 'hideFundsBtn',
+                    renderFunction: renderFundRecoveryRow
+                },
+                'wealth': {
+                    tableBodyId: 'wealthRecoveryBody',
+                    showMoreBtnId: 'showMoreWealthBtn',
+                    hideBtnId: 'hideWealthBtn',
+                    renderFunction: renderWealthRecoveryRow
+                },
+                'securities': {
+                    tableBodyId: 'securitiesRecoveryBody',
+                    showMoreBtnId: 'showMoreSecuritiesBtn',
+                    hideBtnId: 'hideSecuritiesBtn',
+                    renderFunction: renderSecuritiesRecoveryRow
+                },
+                'other': {
+                    tableBodyId: 'otherRecoveryBody',
+                    showMoreBtnId: 'showMoreOtherBtn',
+                    hideBtnId: 'hideOtherBtn',
+                    renderFunction: renderOtherRecoveryRow
+                }
+            };
+            
+            const mapping = tableMappings[dataType];
+            const showMoreBtn = document.getElementById(mapping.showMoreBtnId);
+            const hideBtn = document.getElementById(mapping.hideBtnId);
+            const fullData = JSON.parse(showMoreBtn.dataset.fullData);
+            const tableBody = document.getElementById(mapping.tableBodyId);
+            
+            // 渲染所有数据
+            tableBody.innerHTML = '';
+            fullData.forEach(item => {
+                const row = mapping.renderFunction(item);
+                tableBody.appendChild(row);
+            });
+            
+            // 隐藏"查看更多"按钮，显示"收起"按钮
+            showMoreBtn.style.display = 'none';
+            hideBtn.style.display = 'inline-block';
+        }
+        
+        // 收起数据
+        function hideData(dataType) {
+            // 定义表格映射
+            const tableMappings = {
+                'deposits': {
+                    tableBodyId: 'depositsRecoveryBody',
+                    showMoreBtnId: 'showMoreDepositsBtn',
+                    hideBtnId: 'hideDepositsBtn',
+                    renderFunction: renderDepositRecoveryRow
+                },
+                'funds': {
+                    tableBodyId: 'fundsRecoveryBody',
+                    showMoreBtnId: 'showMoreFundsBtn',
+                    hideBtnId: 'hideFundsBtn',
+                    renderFunction: renderFundRecoveryRow
+                },
+                'wealth': {
+                    tableBodyId: 'wealthRecoveryBody',
+                    showMoreBtnId: 'showMoreWealthBtn',
+                    hideBtnId: 'hideWealthBtn',
+                    renderFunction: renderWealthRecoveryRow
+                },
+                'securities': {
+                    tableBodyId: 'securitiesRecoveryBody',
+                    showMoreBtnId: 'showMoreSecuritiesBtn',
+                    hideBtnId: 'hideSecuritiesBtn',
+                    renderFunction: renderSecuritiesRecoveryRow
+                },
+                'other': {
+                    tableBodyId: 'otherRecoveryBody',
+                    showMoreBtnId: 'showMoreOtherBtn',
+                    hideBtnId: 'hideOtherBtn',
+                    renderFunction: renderOtherRecoveryRow
+                }
+            };
+            
+            const mapping = tableMappings[dataType];
+            const showMoreBtn = document.getElementById(mapping.showMoreBtnId);
+            const hideBtn = document.getElementById(mapping.hideBtnId);
+            const fullData = JSON.parse(showMoreBtn.dataset.fullData);
+            const tableBody = document.getElementById(mapping.tableBodyId);
+            
+            // 只显示前3条数据
+            const displayItems = fullData.slice(0, 3);
+            tableBody.innerHTML = '';
+            displayItems.forEach(item => {
+                const row = mapping.renderFunction(item);
+                tableBody.appendChild(row);
+            });
+            
+            // 显示"查看更多"按钮，隐藏"收起"按钮
+            showMoreBtn.style.display = 'inline-block';
+            hideBtn.style.display = 'none';
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initSettingsPage);
+    </script>
+</body>
+</html>
