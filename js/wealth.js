@@ -256,6 +256,10 @@ async function loadWealth() {
         if (document.getElementById('wealthNameOptions')) {
             updateWealthNameOptions();
         }
+        
+        if (document.getElementById('wealthPlatformOptions')) {
+            updatePlatformOptions();
+        }
     } catch (error) {
         console.error('加载理财数据失败:', error);
         currentWealth = [];
