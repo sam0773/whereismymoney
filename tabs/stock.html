@@ -1,0 +1,175 @@
+            <h2>证券</h2>
+            
+            <!-- 证券汇总显示 -->
+            <div class="summary-container" id="stockSummaryContainer">
+                <div class="summary-header">
+                    <h3>证券汇总信息</h3>
+                    <button id="toggleStockSummary" class="btn btn-small btn-secondary">隐藏</button>
+                </div>
+                <div id="stockSummaryContent">
+                    <!-- 汇总数据 -->
+                    <div class="summary-row total-row">
+                        <span class="summary-label">当前证券账户总资产:</span>
+                        <span class="summary-value" id="totalStockAssets">¥0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加银证转账表单 -->
+            <div class="form-container" id="addStockContainer">
+                <div class="section-header">
+                    <h3>添加银证转账</h3>
+                    <button id="toggleAddStock" class="btn btn-small btn-secondary">隐藏</button>
+                </div>
+                <div id="addStockContent">
+                    <form id="stockForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="broker">券商:</label>
+                                <div class="input-with-datalist">
+                                    <input type="text" id="broker" list="brokerOptions" placeholder="输入券商名称" required>
+                                    <datalist id="brokerOptions"></datalist>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="transferAmount">转账金额:</label>
+                                <input type="number" id="transferAmount" step="0.01" required placeholder="输入转账金额">
+                            </div>
+                            <div class="form-group">
+                                <label for="transferDate">转账日期:</label>
+                                <input type="text" id="transferDate" placeholder="格式：YYYYMMDD" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="transferRemarks">备注:</label>
+                                <input type="text" id="transferRemarks" placeholder="选填">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group"></div>
+                            <div class="form-group"></div>
+                            <div class="form-group"></div>
+                            <div class="form-group" style="display: flex; justify-content: flex-end; align-items: flex-end;">
+                                <button type="submit" class="btn btn-primary">添加转账</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- 证券资产列表 -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>证券资产</h3>
+                    <button id="exportStockData" class="btn btn-small btn-primary">导出数据</button>
+                </div>
+                <table id="stockTable" class="filter-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="header-content">
+                                    <span>券商</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="broker" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="broker" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>本金金额</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="principal" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="principal" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>银证转账详情</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockTableBody">
+                        <!-- 数据将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 历史记录列表 -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>历史记录</h3>
+                </div>
+                <table id="historyTable" class="filter-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="header-content">
+                                    <span>券商</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="broker" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="broker" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>总转入金额</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="totalIn" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="totalIn" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>总转出金额</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="totalOut" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="totalOut" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>收益率</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="yieldRate" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="yieldRate" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>详情</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- 数据将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 转账详情模态框 -->
+            <div id="transferDetailsModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
+                <div class="modal-content" style="max-height: 80vh; overflow-y: auto; max-width: 1000px; width: 100%; background-color: white; padding: 20px; border-radius: 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <h2>交易记录详情</h2>
+                    <div id="modalTransferDetailsContent">
+                        <h3 id="modalBrokerName"></h3>
+                        <table id="modalTransferTable" style="width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 20px;">
+                            <thead>
+                                <tr style="background-color: #f0f0f0;">
+                                    <th style="width: 120px; min-width: 120px; padding: 8px; border: 1px solid #ddd; text-align: center;">转账类型</th>
+                                    <th style="width: 120px; min-width: 120px; padding: 8px; border: 1px solid #ddd; text-align: right;">转账金额</th>
+                                    <th style="width: 120px; min-width: 120px; padding: 8px; border: 1px solid #ddd; text-align: center;">转账日期</th>
+                                    <th style="width: 160px; min-width: 160px; padding: 8px; border: 1px solid #ddd; text-align: center;">备注</th>
+                                    <th style="width: 160px; min-width: 160px; padding: 8px; border: 1px solid #ddd; text-align: center;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalTransferTableBody">
+                                <!-- 数据将通过JavaScript动态添加 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-actions" style="margin-top: 20px; text-align: center;">
+                        <button class="btn btn-secondary" onclick="closeTransferDetails()">关闭</button>
+                    </div>
+                </div>
+            </div>

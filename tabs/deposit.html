@@ -1,0 +1,312 @@
+            <h2>定期存款</h2>
+            
+            <!-- 银行汇总显示 -->
+            <div class="summary-container" id="summaryContainer">
+                <div class="summary-header">
+                    <h3>存款汇总信息</h3>
+                    <button id="toggleSummary" class="btn btn-small btn-secondary">隐藏</button>
+                </div>
+                <div id="summaryContent">
+                    <!-- 汇总数据 -->
+                    <div class="summary-row total-row">
+                        <span class="summary-label">当前总存款金额:</span>
+                        <span class="summary-value" id="totalAmount">¥0.00</span>
+                    </div>
+                    <div id="bankSummary"></div>
+                    <div class="summary-row total-row interest-row">
+                        <span class="summary-label">已到手利息:</span>
+                        <span class="summary-value" id="totalInterest">¥0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加存款表单 -->
+            <div class="form-container" id="addDepositContainer">
+                <div class="section-header">
+                    <h3>添加定期存款</h3>
+                    <button id="toggleAddDeposit" class="btn btn-small btn-secondary">隐藏</button>
+                </div>
+                <div id="addDepositContent">
+                    <form id="depositForm">
+                        <!-- 第一行：存款银行、存入金额、利率(%)、存入日期 -->
+                        <div class="form-row four-columns">
+                            <div class="form-group">
+                                <label for="depositBank">存款银行:</label>
+                                <input type="text" id="depositBank" list="bankOptions" required placeholder="输入或选择已有列表">
+                                <datalist id="bankOptions">
+                                    <!-- 银行选项将通过JavaScript动态添加 -->
+                                </datalist>
+                            </div>
+                            <div class="form-group">
+                                <label for="depositAmount">存入金额:</label>
+                                <input type="number" id="depositAmount" step="0.01" placeholder="请输入存款金额" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="depositRate">利率 (%):</label>
+                                <input type="number" id="depositRate" step="0.01" required placeholder="请输入利率">
+                            </div>
+                            <div class="form-group">
+                                <label for="depositDate">存入日期:</label>
+                                <input type="text" id="depositDate" placeholder="格式：YYYYMMDD" required>
+                            </div>
+                        </div>
+                        
+                        <!-- 第二行：存期、到期日、利息、备注 -->
+                        <div class="form-row four-columns">
+                            <div class="form-group">
+                                <label for="depositPeriod">存期:</label>
+                                <div class="period-input">
+                                    <input type="number" id="depositPeriod" placeholder="请输入或根据到期日自动生成">
+                                    <select id="periodUnit">
+                                        <option value="month">月</option>
+                                        <option value="year">年</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="depositExpiryDate">到期日:</label>
+                                <input type="text" id="depositExpiryDate" placeholder="选择存期自动生成或输入">
+                            </div>
+                            <div class="form-group">
+                                <label for="depositInterest">利息:</label>
+                                <input type="number" id="depositInterest" step="0.01" placeholder="根据利率自动生成或输入">
+                            </div>
+                            <div class="form-group">
+                                <label for="depositRemarks">备注:</label>
+                                <input type="text" id="depositRemarks" placeholder="选填">
+                            </div>
+                        </div>
+                        
+                        <!-- 第三行：添加存款按钮 -->
+                        <div class="form-row" style="justify-content: flex-end;">
+                            <div class="form-group" style="min-width: 120px; display: flex; justify-content: flex-end; align-items: flex-end;">
+                                <button type="submit" class="btn btn-primary">添加存款</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Excel导入功能按钮 -->
+                        <div class="import-section" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+                            <span style="font-weight: bold; margin-right: 15px; color: #333;">批量添加数据：</span>
+                            <input type="file" id="excelFile" accept=".xlsx,.xls" style="display: none;">
+                            <label for="excelFile" class="btn btn-primary">选择Excel文件</label>
+                            <span id="fileName" style="margin: 0 10px; color: #666;">未选择文件</span>
+                            <button id="importExcel" class="btn btn-secondary" type="button">导入数据</button>
+                            <button id="downloadTemplate" class="btn btn-secondary" type="button">下载模板</button>
+                            <span id="importStatus" style="margin-left: 10px;"></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- 未来5年到期金额柱状图 -->
+            <div class="section-container">
+                <div class="table-header">
+                    <h3>未来5年到期金额分布</h3>
+                </div>
+                <div id="depositExpiryChart" style="height: 200px; width: 100%;"></div>
+            </div>
+            
+            <!-- 筛选功能已移至表头 -->
+            
+            <!-- 存款列表 -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>存款列表</h3>
+                    <div class="search-container">
+                        <input type="text" id="depositSearch" placeholder="搜索存款记录..." class="search-input">
+                    </div>
+                    <button id="addToCalendar" class="btn btn-primary" style="margin-right: 10px; background-color: #4CAF50; border-color: #4CAF50;">添加到日历</button>
+                    <button id="exportExcel" class="btn btn-primary">导出数据</button>
+                </div>
+                <table id="depositTable" class="filter-table">
+                    <thead>
+                        <!-- 表头行 -->
+                        <tr>
+                            <th>
+                                <div class="header-content">
+                                    <span>存款银行</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="bank" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="bank" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>利率 (%)</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="rate" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="rate" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>存期 (月)</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="period" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="period" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>存入金额</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="amount" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="amount" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>存入日期</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="date" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="date" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>到期日</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="expiryDate" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="expiryDate" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>剩余天数</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="remainingDays" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="remainingDays" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>利息</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="interest" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="interest" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>备注</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="remarks" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="remarks" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="depositTableBody">
+                        <!-- 数据将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 已到期列表 -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>已到期列表</h3>
+                </div>
+                <table id="expiredDepositTable" class="filter-table">
+                    <thead>
+                        <!-- 表头行，与存款列表相同 -->
+                        <tr>
+                            <th>
+                                <div class="header-content">
+                                    <span>存款银行</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="bank" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="bank" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>利率 (%)</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="rate" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="rate" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>存期 (月)</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="period" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="period" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>存入金额</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="amount" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="amount" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>存入日期</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="date" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="date" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>到期日</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="expiryDate" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="expiryDate" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>已到期天数</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="expiredDays" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="expiredDays" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>利息</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="interest" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="interest" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>备注</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="remarks" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="remarks" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expiredDepositTableBody">
+                        <!-- 数据将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>
