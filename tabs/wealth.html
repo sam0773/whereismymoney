@@ -62,26 +62,18 @@
                         <div class="form-group">
                             <label for="wealthType">产品类型:</label>
                             <select id="wealthType" required>
-                                <option value="活期">活期</option>
-                                <option value="定期">定期</option>
-                                <option value="周期">周期</option>
+                                <option value="每日开放">每日开放</option>
+                                <option value="最短持有期">最短持有期</option>
+                                <option value="定期开放式">定期开放式</option>
+                                <option value="固定天数循环">固定天数循环</option>
+                                <option value="结构性周期">结构性周期</option>
+                                <option value="封闭式">封闭式</option>
                             </select>
                         </div>
-                        <div class="form-group" style="position: relative;">
-                            <!-- 到期日期和周期类型共享同一个容器，通过JS控制显示/隐藏 -->
+                        <div class="form-group">
                             <div id="expiryDateContainer">
                                 <label for="wealthExpiryDate">到期日期:</label>
                                 <input type="text" id="wealthExpiryDate" placeholder="格式：YYYYMMDD">
-                            </div>
-                            <div id="cycleTypeGroup" style="display: none; position: absolute; top: 0; left: 0; width: 100%;">
-                                <label for="cycleType">周期类型:</label>
-                                <select id="cycleType" required>
-                    <option value="">请选择周期类型</option>
-                    <option value="固定天数循环理财">固定天数循环理财</option>
-                    <option value="最短持有期理财">最短持有期理财</option>
-                    <option value="定期开放式理财">定期开放式理财</option>
-                    <option value="结构性周期理财">结构性周期理财</option>
-                </select>
                             </div>
                         </div>
                         <div class="form-group"></div>
@@ -142,7 +134,7 @@
                             </th>
                             <th>
                                 <div class="header-content">
-                                    <span>到期日期/周期类型</span>
+                                    <span>到期日期</span>
                                     <div class="sort-container">
                                         <button class="sort-btn" data-column="expiryDate" data-order="asc">▲</button>
                                         <button class="sort-btn" data-column="expiryDate" data-order="desc">▼</button>

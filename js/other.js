@@ -734,6 +734,15 @@ async function handleOtherSubmit(e) {
         // 更新数据列表
         populateDatalists();
         
+        // 更新汇总信息
+        if (window.updateSummary) {
+            window.updateSummary();
+        }
+        // 更新最近动态
+        if (window.updateRecentActivities) {
+            window.updateRecentActivities();
+        }
+        
         // 清空表单
         e.target.reset();
         
@@ -859,8 +868,8 @@ function renderOtherTable(sortedActiveGroups = null, sortedHistoryGroups = null)
                         <button class="btn btn-small btn-primary" onclick="showOtherDetails('${groupKey.replace(/'/g, "&#39;")}')">查看详情</button>
                     </td>
                     <td>
-                        <button class="btn btn-small btn-primary" onclick="buyOther('${groupKey.replace(/'/g, "&#39;")}')">购买</button>
-                        <button class="btn btn-small btn-warning" onclick="partialRedeemOther('${groupKey.replace(/'/g, "&#39;")}')">部分赎回</button>
+                        <button class="btn btn-small btn-buy" onclick="buyOther('${groupKey.replace(/'/g, "&#39;")}')">购买</button>
+                        <button class="btn btn-small btn-partial-redemption" onclick="partialRedeemOther('${groupKey.replace(/'/g, "&#39;")}')">部分赎回</button>
                         <button class="btn btn-small btn-danger" onclick="fullRedeemOther('${groupKey.replace(/'/g, "&#39;")}')">全部赎回</button>
                     </td>
                 </tr>

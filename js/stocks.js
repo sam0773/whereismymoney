@@ -362,6 +362,15 @@ async function handleStockSubmit(e) {
         // 更新券商数据列表
         populateBrokerDatalist();
         
+        // 更新汇总信息
+        if (window.updateSummary) {
+            window.updateSummary();
+        }
+        // 更新最近动态
+        if (window.updateRecentActivities) {
+            window.updateRecentActivities();
+        }
+        
         // 清空表单
         e.target.reset();
         
@@ -575,10 +584,10 @@ function renderStockTable(sortedBrokers = null) {
                 <button class="btn btn-small btn-primary" onclick="showTransferDetails('${broker}')">查看详情</button>
             </td>
             <td>
-                <button class="btn btn-small btn-primary" onclick="handleBankToSecurities('${broker}')">银行转证券</button>
-                <button class="btn btn-small btn-secondary" onclick="handleSecuritiesToBank('${broker}')">证券转银行</button>
+                <button class="btn btn-small btn-bank-to-stock" onclick="handleBankToSecurities('${broker}')">银行转证券</button>
+                <button class="btn btn-small btn-stock-to-bank" onclick="handleSecuritiesToBank('${broker}')">证券转银行</button>
                 <button class="btn btn-small btn-danger" onclick="handleFullTransferOut('${broker}')">全部转出</button>
-                <button class="btn btn-small btn-info" onclick="handleCalculateYield('${broker}')">试算收益</button>
+                <button class="btn btn-small btn-secondary" onclick="handleCalculateYield('${broker}')">试算收益</button>
             </td>
         </tr>
     `;

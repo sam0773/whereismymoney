@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的财富 - 总览</title>
+    <link rel="stylesheet" href="../style.css">
+    <script src="../js/echarts.min.js"></script>
+</head>
+<body>
+    <div class="user-info">
+        <span id="currentUser" style="cursor: pointer; text-decoration: underline;"></span>
+        <button id="logoutBtn" class="btn btn-small btn-secondary">退出登录</button>
+    </div>
+
+    <div class="user-settings-modal" id="userSettingsModal" style="display: none;"></div>
+
+    <div class="container">
+        <h1>我的财富</h1>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="overview">总览</button>
+            <button class="tab-btn" data-tab="deposit">定期存款</button>
+            <button class="tab-btn" data-tab="fund">基金</button>
+            <button class="tab-btn" data-tab="wealth">理财</button>
+            <button class="tab-btn" data-tab="stock">证券</button>
+            <button class="tab-btn" data-tab="other">其它投资</button>
+        </div>
+        
+        <div id="overview" class="tab-content active"></div>
+    </div>
+
+    <script src="../js/xlsx.full.min.js"></script>
+    <script>
+    if (typeof XLSX === 'undefined') {
+        console.warn('XLSX library not loaded, using fallback mode for Excel operations');
+        window.XLSX = {
+            utils: {
+                aoa_to_sheet: function() { return {}; },
+                json_to_sheet: function() { return {}; },
+                book_new: function() { return {}; },
+                book_append_sheet: function() {},
+                sheet_to_json: function() { return []; }
+            },
+            writeFile: function() { alert('XLSX库未加载，无法导出Excel文件'); },
+            write: function() { return []; }
+        };
+    }
+    </script>
+
+    <script src="../js/dbManager.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/excel.js"></script>
+    <script src="../js/deposits.js"></script>
+    <script src="../js/fund.js"></script>
+    <script src="../js/wealth.js"></script>
+    <script src="../js/stocks.js"></script>
+    <script src="../js/other.js"></script>
+
+    <script>
+        const dbManager = new DBManager();
+        window.dbManager = dbManager;
+
+        const tabContentCache = {};
+
+        async function loadTabContent(tabId) {
+            if (tabContentCache[tabId]) {
+                document.getElementById(tabId).innerHTML = tabContentCache[tabId];
+                callInitFunction(tabId);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`../tabs/${tabId}.html`);
+                if (response.ok) {
+                    const content = await response.text();
+                    tabContentCache[tabId] = content;
+                    document.getElementById(tabId).innerHTML = content;
+                    callInitFunction(tabId);
+                } else {
+                    console.error(`加载选项卡 ${tabId} 失败: ${response.status}`);
+                }
+            } catch (error) {
+                console.error(`加载选项卡 ${tabId} 出错:`, error);
+            }
+        }
+
+        function callInitFunction(tabId) {
+            switch (tabId) {
+                case 'overview':
+                    if (window.initOverview) window.initOverview();
+                    break;
+                case 'deposit':
+                    if (window.initDeposits) window.initDeposits();
+                    break;
+                case 'fund':
+                    if (window.initFund) window.initFund();
+                    break;
+                case 'wealth':
+                    if (window.initWealth) window.initWealth();
+                    break;
+                case 'stock':
+                    if (window.initStocks) window.initStocks();
+                    break;
+                case 'other':
+                    if (window.initOther) window.initOther();
+                    break;
+            }
+        }
+
+        function navigateToPage(tabId) {
+            window.location.href = `/${tabId}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await dbManager.initDB();
+                
+                if (window.checkLoginStatus) {
+                    await window.checkLoginStatus();
+                }
+                
+                if (window.bindLoginEvents) window.bindLoginEvents();
+                if (window.bindEvents) window.bindEvents();
+                if (window.initAuth) window.initAuth();
+                
+                loadTabContent('overview');
+            } catch (error) {
+                console.error('初始化失败:', error);
+                alert('初始化失败，应用可能无法正常工作');
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('tab-btn')) {
+                const tabId = e.target.getAttribute('data-tab');
+                if (tabId !== 'overview') {
+                    navigateToPage(tabId);
+                }
+            }
+        });
+
+        window.loadTabContent = loadTabContent;
+        window.callInitFunction = callInitFunction;
+    </script>
+</body>
+</html>

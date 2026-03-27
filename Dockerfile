@@ -13,8 +13,8 @@ RUN npm install --production
 # 复制应用程序文件到工作目录
 COPY . .
 
-# 暴露端口3000
-EXPOSE 3000
+# 暴露端口9000
+EXPOSE 9000
 
 # 启动应用程序
 CMD ["node", "server.js"]

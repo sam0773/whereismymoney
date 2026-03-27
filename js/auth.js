@@ -32,6 +32,12 @@ async function checkLoginStatus() {
     
     if (isLoggedIn && currentUser) {
         try {
+            // 如果是在登录页面，直接跳转到总览页面
+            if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                window.location.href = '/overview';
+                return;
+            }
+            
             // 显示/隐藏元素 - 检查元素是否存在
             const loginModal = document.getElementById('loginModal');
             if (loginModal) {
@@ -51,14 +57,13 @@ async function checkLoginStatus() {
             // 加载用户信息显示
             updateUserInfo();
             
-            // 只在主页（有相关元素）加载数据
+            // 只在有container的页面加载数据
             if (container) {
                 // 加载所有数据，包括其它资产数据
                 if (window.loadAllData) {
                     await window.loadAllData();
                 }
-                // 更新用户信息，不调用可能找不到DOM元素的渲染函数
-                // 选项卡内容会在动态加载时自动更新和渲染
+                // 更新用户信息
                 if (window.updateUserInfo) window.updateUserInfo();
             }
         } catch (error) {
@@ -84,10 +89,20 @@ async function checkLoginStatus() {
             }
         }
     } else {
-        // 未登录或当前用户不存在，显示登录模态框
-        console.log('用户未登录，显示登录模态框');
+        // 未登录或当前用户不存在
+        console.log('用户未登录，跳转到登录页面');
         
-        // 显示登录模态框 - 检查元素是否存在
+        // 清除无效的登录状态
+        localStorage.setItem(LOGIN_STATUS_KEY, 'false');
+        localStorage.removeItem(CURRENT_USER_KEY);
+        
+        // 如果不是在登录页面，跳转到登录页面
+        if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+            window.location.href = '/';
+            return;
+        }
+        
+        // 在登录页面，显示登录模态框
         const loginModal = document.getElementById('loginModal');
         if (loginModal) {
             loginModal.style.display = 'flex';
@@ -101,15 +116,6 @@ async function checkLoginStatus() {
         const userInfo = document.querySelector('.user-info');
         if (userInfo) {
             userInfo.style.display = 'none';
-        }
-        
-        // 清除无效的登录状态
-        localStorage.setItem(LOGIN_STATUS_KEY, 'false');
-        localStorage.removeItem(CURRENT_USER_KEY);
-        
-        // 如果是在设置页面，跳转到登录页面
-        if (window.location.pathname.includes('settings.html')) {
-            window.location.href = 'index.html';
         }
     }
     
@@ -168,55 +174,8 @@ async function handleLogin(e) {
         localStorage.setItem(LOGIN_STATUS_KEY, 'true');
         setCurrentUser(user);
         
-        // 显示系统内容
-        document.getElementById('loginModal').style.display = 'none';
-        document.querySelector('.container').style.display = 'block';
-        document.querySelector('.user-info').style.display = 'flex';
-        
-        // 加载所有数据，包括其它资产数据
-        if (window.loadAllData) {
-            await window.loadAllData();
-        }
-        
-        // 只更新当前可见选项卡的内容
-        const activeTab = document.querySelector('.tab-content.active');
-        if (activeTab) {
-            const tabId = activeTab.id;
-            
-            // 根据当前选项卡调用对应的渲染函数
-            switch (tabId) {
-                case 'overview':
-                    if (window.updateSummary) window.updateSummary();
-                    // 初始化图表
-                    if (window.initCharts) {
-                        setTimeout(() => {
-                            window.initCharts();
-                        }, 500);
-                    }
-                    break;
-                case 'deposit':
-                    if (window.renderDepositTable) window.renderDepositTable();
-                    if (window.updateBankOptions) window.updateBankOptions();
-                    break;
-                case 'fund':
-                    if (window.renderFundTable) window.renderFundTable();
-                    if (window.updateFundNameOptions) window.updateFundNameOptions();
-                    break;
-                case 'wealth':
-                    if (window.renderWealthTable) window.renderWealthTable();
-                    if (window.updatePlatformOptions) window.updatePlatformOptions();
-                    break;
-                case 'stock':
-                    if (window.renderStockTable) window.renderStockTable();
-                    break;
-                case 'other':
-                    if (window.renderOtherTable) window.renderOtherTable();
-                    break;
-            }
-        }
-        
-        // 更新用户信息显示
-        if (window.updateUserInfo) window.updateUserInfo();
+        // 登录成功后跳转到总览页面
+        window.location.href = '/overview';
         
         // 清空表单
         e.target.reset();

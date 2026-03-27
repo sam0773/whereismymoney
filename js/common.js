@@ -286,17 +286,18 @@ function updateSummary() {
     
     for (const transaction of sortedWealthTransactions) {
         if (transaction.transactionType === 'buy') {
-            // 活期和周期产品合并处理
-            if (transaction.type === '活期' || transaction.type === '周期' || transaction.type === '定期') {
-                // 生成批次key：活期使用平台_产品名称_产品类型，周期使用平台_产品名称_产品类型_周期类型
+            // 所有产品类型都需要处理
+            // 每日开放和其他类型（除封闭式外）合并处理
+            if (transaction.type === '每日开放' || transaction.type === '最短持有期' || transaction.type === '定期开放式' || transaction.type === '固定天数循环' || transaction.type === '结构性周期' || transaction.type === '封闭式' || transaction.type === '活期' || transaction.type === '周期' || transaction.type === '定期') {
+                // 生成批次key：每日开放使用平台_产品名称_产品类型，其他需要周期类型的产品使用平台_产品名称_产品类型_周期类型，封闭式每个购买记录都创建一个独立的批次
                 let key;
-                if (transaction.type === '活期') {
+                if (transaction.type === '每日开放' || transaction.type === '活期') {
                     key = `${transaction.platform}_${transaction.name}_${transaction.type}`;
-                } else if (transaction.type === '周期') {
-                    // 周期产品，使用周期类型作为key的一部分
+                } else if (transaction.type === '最短持有期' || transaction.type === '定期开放式' || transaction.type === '固定天数循环' || transaction.type === '结构性周期' || transaction.type === '周期') {
+                    // 需要周期类型的产品，使用周期类型作为key的一部分
                     key = `${transaction.platform}_${transaction.name}_${transaction.type}_${transaction.cycleType || '未知'}`;
                 } else {
-                    // 定期产品，每个购买记录都创建一个独立的批次
+                    // 封闭式（原定期）产品，每个购买记录都创建一个独立的批次
                     key = `${transaction.id}_${transaction.date}`;
                 }
                 
@@ -323,7 +324,7 @@ function updateSummary() {
                     date: transaction.date,
                     type: transaction.transactionType,
                     amount: parseFloat(transaction.amount || 0),
-                    expiryDate: transaction.expiry_date,
+                    expiryDate: transaction.expiryDate || transaction.expiry_date,
                     redeemedAmount: parseFloat(transaction.redeemedAmount || 0),
                     cycleType: transaction.cycleType,
                     redeemType: transaction.redeemType || ''
@@ -343,14 +344,14 @@ function updateSummary() {
                     batch.platform === transaction.platform && 
                     batch.name === transaction.name && 
                     batch.type === transaction.type) {
-                    // 对于周期产品，还需要匹配周期类型
-                    if (batch.type === '周期') {
+                    // 对于需要周期类型的产品，还需要匹配周期类型
+                    if (batch.type === '最短持有期' || batch.type === '定期开放式' || batch.type === '固定天数循环' || batch.type === '结构性周期') {
                         if (batch.cycleType === transaction.cycleType) {
                             foundBatch = batch;
                             break;
                         }
                     } else {
-                        // 活期和定期产品，不需要匹配周期类型
+                        // 每日开放和封闭式产品，不需要匹配周期类型
                         foundBatch = batch;
                         break;
                     }
@@ -364,7 +365,7 @@ function updateSummary() {
                     date: transaction.date,
                     type: transaction.transactionType,
                     amount: parseFloat(transaction.amount || 0),
-                    expiryDate: transaction.expiry_date,
+                    expiryDate: transaction.expiryDate || transaction.expiry_date,
                     redeemedAmount: parseFloat(transaction.redeemedAmount || 0),
                     cycleType: transaction.cycleType,
                     redeemType: transaction.redeemType || ''
@@ -377,13 +378,13 @@ function updateSummary() {
                 // 只根据是否使用全部赎回按钮来判断状态，不考虑持有金额
                 if (transaction.redeemType === 'full') {
                     foundBatch.status = 'redeemed';
-                    // 如果是活期或周期产品，从活跃批次映射中移除
-                    if (foundBatch.type === '活期' || foundBatch.type === '周期') {
+                    // 如果是每日开放或需要周期类型的产品，从活跃批次映射中移除
+                    if (foundBatch.type === '每日开放' || foundBatch.type === '最短持有期' || foundBatch.type === '定期开放式' || foundBatch.type === '固定天数循环' || foundBatch.type === '结构性周期') {
                         let key;
-                        if (foundBatch.type === '活期') {
+                        if (foundBatch.type === '每日开放') {
                             key = `${foundBatch.platform}_${foundBatch.name}_${foundBatch.type}`;
                         } else {
-                            // 周期产品，使用周期类型作为key的一部分
+                            // 需要周期类型的产品，使用周期类型作为key的一部分
                             key = `${foundBatch.platform}_${foundBatch.name}_${foundBatch.type}_${foundBatch.cycleType || '未知'}`;
                         }
                         delete activeBatches[key];
@@ -802,6 +803,14 @@ document.addEventListener('click', function(e) {
             updateAssetTrendChart(interval);
         });
     }
+    
+    // 银行账户按钮点击事件 - 跳转到/account页面
+    const quickAddDepositBtn = document.getElementById('quickAddDeposit');
+    if (quickAddDepositBtn) {
+        quickAddDepositBtn.addEventListener('click', function() {
+            window.location.href = '/account';
+        });
+    }
 }
 
 // 金额显隐功能
@@ -885,6 +894,15 @@ function updateAmountsDisplay() {
 
 // 导出函数
 window.formatDate = formatDate;
+window.formatDateForDisplay = formatDateForDisplay;
+window.formatAmountForDisplay = formatAmountForDisplay;
+window.getDepositActivities = getDepositActivities;
+window.getFundActivities = getFundActivities;
+window.getWealthActivities = getWealthActivities;
+window.getStockActivities = getStockActivities;
+window.getOtherActivities = getOtherActivities;
+window.getRecentActivities = getRecentActivities;
+window.updateRecentActivities = updateRecentActivities;
 window.calculateExpiryDate = calculateExpiryDate;
 window.calculatePeriod = calculatePeriod;
 window.calculateInterest = calculateInterest;
@@ -1560,7 +1578,7 @@ function calculateOtherHistory(date) {
 }
 
 // 更新资产趋势图
-function updateAssetTrendChart(intervalDays = 30) {
+function updateAssetTrendChart(intervalDays = 365) {
     if (!assetTrendChart) return;
     
     // 获取当前日期
@@ -1683,6 +1701,271 @@ function updateAssetTrendChart(intervalDays = 30) {
     assetTrendChart.setOption(option);
 }
 
+// 格式化日期为 YYYY年MM月DD日格式
+function formatDateForDisplay(dateValue) {
+    const date = new Date(formatDate(dateValue));
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}年${month}月${day}日`;
+}
+
+// 格式化金额为 XXX.00元
+function formatAmountForDisplay(amount) {
+    return `${parseFloat(amount).toFixed(2)}元`;
+}
+
+// 收集和格式化定期存款的动态
+function getDepositActivities() {
+    const deposits = window.currentDeposits || [];
+    const activities = [];
+    
+    deposits.forEach(deposit => {
+        const date = formatDateForDisplay(deposit.date || deposit.deposit_date);
+        const bank = deposit.bank;
+        const amount = formatAmountForDisplay(deposit.amount);
+        const expiryDate = new Date(formatDate(deposit.expiryDate || deposit.expiry_date));
+        const today = new Date();
+        
+        // 添加存入记录
+        activities.push({
+            type: 'deposit',
+            date: deposit.date || deposit.deposit_date,
+            text: `【定期存款】${date}在${bank}存入 ${amount}`
+        });
+        
+        // 如果已到期，添加到期记录
+        if (expiryDate < today) {
+            activities.push({
+                type: 'deposit',
+                date: deposit.expiryDate || deposit.expiry_date,
+                text: `【定期存款】${formatDateForDisplay(deposit.expiryDate || deposit.expiry_date)}在${bank}到期 ${amount}`
+            });
+        }
+    });
+    
+    return activities;
+}
+
+// 收集和格式化基金的动态
+function getFundActivities() {
+    const funds = window.currentFund || [];
+    const activities = [];
+    
+    funds.forEach(fund => {
+        const date = formatDateForDisplay(fund.date);
+        const platform = fund.platform;
+        const name = fund.name;
+        const amount = formatAmountForDisplay(fund.amount);
+        
+        if (fund.transactionType === 'buy') {
+            activities.push({
+                type: 'fund',
+                date: fund.date,
+                text: `【基金】${date}在${platform}购买${name} ${amount}`
+            });
+        } else if (fund.transactionType === 'redeem') {
+            activities.push({
+                type: 'fund',
+                date: fund.date,
+                text: `【基金】${date}在${platform}赎回${name} ${amount}`
+            });
+        }
+    });
+    
+    return activities;
+}
+
+// 收集和格式化理财的动态
+function getWealthActivities() {
+    const wealths = window.currentWealth || [];
+    const activities = [];
+    
+    wealths.forEach(wealth => {
+        const date = formatDateForDisplay(wealth.date);
+        const platform = wealth.platform;
+        const name = wealth.name;
+        const amount = formatAmountForDisplay(wealth.amount);
+        
+        if (wealth.transactionType === 'buy') {
+            activities.push({
+                type: 'wealth',
+                date: wealth.date,
+                text: `【理财】${date}在${platform}购买${name} ${amount}`
+            });
+        } else if (wealth.transactionType === 'redeem') {
+            activities.push({
+                type: 'wealth',
+                date: wealth.date,
+                text: `【理财】${date}在${platform}赎回${name} ${amount}`
+            });
+        }
+    });
+    
+    return activities;
+}
+
+// 收集和格式化证券的动态
+function getStockActivities() {
+    const stocks = window.currentStocks || [];
+    const activities = [];
+    
+    stocks.forEach(stock => {
+        const date = formatDateForDisplay(stock.date);
+        const broker = stock.broker;
+        const amount = formatAmountForDisplay(stock.amount);
+        const type = stock.type || stock.transferType;
+        
+        let actionText = '';
+        if (type === '银行转证券' || type === 'bankToSecurities') {
+            actionText = '银行转证券';
+        } else if (type === '证券转银行' || type === 'securitiesToBank') {
+            actionText = '证券转银行';
+        }
+        
+        if (actionText) {
+            activities.push({
+                type: 'stock',
+                date: stock.date,
+                text: `【证券】${date}在${broker}${actionText} ${amount}`
+            });
+        }
+    });
+    
+    return activities;
+}
+
+// 收集和格式化其它投资的动态
+function getOtherActivities() {
+    const others = window.currentOtherInvestments || [];
+    const activities = [];
+    
+    others.forEach(other => {
+        const date = formatDateForDisplay(other.date);
+        const platform = other.platform || '无平台';
+        const name = other.name;
+        const amount = formatAmountForDisplay(other.amount);
+        
+        if (other.transactionType === 'buy') {
+            activities.push({
+                type: 'other',
+                date: other.date,
+                text: `【其它投资】${date}在${platform}购买${name} ${amount}`
+            });
+        } else if (other.transactionType === 'redeem') {
+            activities.push({
+                type: 'other',
+                date: other.date,
+                text: `【其它投资】${date}在${platform}赎回${name} ${amount}`
+            });
+        }
+    });
+    
+    return activities;
+}
+
+// 获取最近3笔操作记录
+function getRecentActivities() {
+    const allActivities = [
+        ...getDepositActivities(),
+        ...getFundActivities(),
+        ...getWealthActivities(),
+        ...getStockActivities(),
+        ...getOtherActivities()
+    ];
+    
+    // 按日期降序排序
+    allActivities.sort((a, b) => new Date(formatDate(b.date)) - new Date(formatDate(a.date)));
+    
+    // 取最近3笔
+    return allActivities.slice(0, 3);
+}
+
+// 更新最近动态显示
+function updateRecentActivities() {
+    const activityList = document.getElementById('activityList');
+    if (!activityList) return;
+    
+    const activities = getRecentActivities();
+    
+    if (activities.length === 0) {
+        activityList.innerHTML = `
+            <div class="activity-item">
+                <div class="activity-content">
+                    <div class="activity-text">暂无动态</div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+    
+    activityList.innerHTML = activities.map(activity => {
+        // 分析文本，确定操作类型和金额位置
+        let text = activity.text;
+        let isRed = false; // 红色：存入、购买、银行转证券
+        let isGreen = false; // 绿色：到期、赎回、证券转银行
+        
+        if (text.includes('存入') || text.includes('购买') || text.includes('银行转证券')) {
+            isRed = true;
+        } else if (text.includes('到期') || text.includes('赎回') || text.includes('证券转银行')) {
+            isGreen = true;
+        }
+        
+        // 找到金额位置并添加颜色
+        // 匹配 "XXX.00元" 格式的金额
+        const amountRegex = /(\d+\.\d+元)/;
+        const match = text.match(amountRegex);
+        
+        if (match) {
+            const amount = match[1];
+            const amountIndex = text.indexOf(amount);
+            const beforeAmount = text.substring(0, amountIndex);
+            const afterAmount = text.substring(amountIndex + amount.length);
+            
+            // 确定金额前面的操作词
+            let actionWord = '';
+            if (beforeAmount.includes('存入')) actionWord = '存入';
+            else if (beforeAmount.includes('购买')) actionWord = '购买';
+            else if (beforeAmount.includes('银行转证券')) actionWord = '银行转证券';
+            else if (beforeAmount.includes('到期')) actionWord = '到期';
+            else if (beforeAmount.includes('赎回')) actionWord = '赎回';
+            else if (beforeAmount.includes('证券转银行')) actionWord = '证券转银行';
+            
+            const color = isRed ? 'red' : isGreen ? 'green' : 'inherit';
+            
+            // 构建带颜色的HTML
+            let htmlText = '';
+            if (actionWord) {
+                const actionIndex = beforeAmount.indexOf(actionWord);
+                htmlText = beforeAmount.substring(0, actionIndex) +
+                    `<span style="color: ${color}">${actionWord}</span>` +
+                    beforeAmount.substring(actionIndex + actionWord.length) +
+                    `<span style="color: ${color}">${amount}</span>` +
+                    afterAmount;
+            } else {
+                htmlText = beforeAmount + `<span style="color: ${color}">${amount}</span>` + afterAmount;
+            }
+            
+            return `
+                <div class="activity-item">
+                    <div class="activity-content">
+                        <div class="activity-text">${htmlText}</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 如果没有匹配到金额，使用原始文本
+        return `
+            <div class="activity-item">
+                <div class="activity-content">
+                    <div class="activity-text">${text}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
 // 初始化总览页面
 async function initOverview() {
     console.log('总览页面初始化');
@@ -1692,6 +1975,9 @@ async function initOverview() {
     
     // 先更新数据显示，让用户快速看到内容
     updateSummary();
+    
+    // 更新最近动态
+    updateRecentActivities();
     
     // 延迟初始化图表，等页面主要内容加载完成后再加载图表
     setTimeout(() => {

@@ -452,6 +452,15 @@ async function handleFundSubmit(e) {
             // 重新渲染表格
             await renderFundTable();
             
+            // 更新汇总信息
+            if (window.updateSummary) {
+                window.updateSummary();
+            }
+            // 更新最近动态
+            if (window.updateRecentActivities) {
+                window.updateRecentActivities();
+            }
+            
             // 清空表单
         e.target.reset();
         
@@ -798,7 +807,7 @@ async function renderFundTableSection(tableBodyId, fundList, tableType, sortedFu
                             <button class="btn btn-small btn-secondary" onclick="viewFundTransactions(${JSON.stringify(fund).replace(/"/g, '&quot;')})">查看详情</button>
                         </td>
                         <td>
-                            <button class="btn btn-small btn-success" onclick="addFundPurchase(${JSON.stringify(fund).replace(/"/g, '&quot;')})">购买</button>
+                            <button class="btn btn-small btn-buy" onclick="addFundPurchase(${JSON.stringify(fund).replace(/"/g, '&quot;')})">购买</button>
                             <button class="btn btn-small btn-primary" onclick="partialRedeemFund(${JSON.stringify(fund).replace(/"/g, '&quot;')})">部分赎回</button>
                             <button class="btn btn-small btn-danger" onclick="fullRedeemFund(${JSON.stringify(fund).replace(/"/g, '&quot;')})">全部赎回</button>
                             <button class="btn btn-small btn-secondary" onclick="calculateYieldModalFund(${JSON.stringify(fund).replace(/"/g, '&quot;')})">试算收益</button>
@@ -1406,7 +1415,9 @@ function showYieldCalculationFundModal(fund) {
         const closeBtn = document.getElementById('closeYieldFundModalBtn');
         
         // 计算按钮事件
-        const handleCalculate = () => {
+        const handleCalculate = (e) => {
+            e.stopPropagation(); // 阻止事件冒泡，防止模态框关闭
+            
             const calculationAmount = parseFloat(document.getElementById('calculationAmount').value);
             const resultEl = document.getElementById('yieldResult');
             const statusEl = document.getElementById('yieldCalculationFundStatus');

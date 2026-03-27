@@ -318,29 +318,16 @@ function handleWealthTypeChange() {
     const wealthType = document.getElementById('wealthType').value;
     const expiryDateContainer = document.getElementById('expiryDateContainer');
     const expiryDateInput = document.getElementById('wealthExpiryDate');
-    const cycleTypeGroup = document.getElementById('cycleTypeGroup');
-    const cycleTypeSelect = document.getElementById('cycleType');
     
-    if (wealthType === '定期') {
-        // 定期类型：显示到期日期，隐藏周期类型
+    if (wealthType === '封闭式') {
+        // 封闭式（原定期）：显示到期日期
         expiryDateContainer.style.display = 'block';
         expiryDateInput.required = true;
-        cycleTypeGroup.style.display = 'none';
-        cycleTypeSelect.required = false;
-    } else if (wealthType === '周期') {
-        // 周期类型：隐藏到期日期，显示周期类型
-        expiryDateContainer.style.display = 'none';
-        expiryDateInput.required = false;
-        expiryDateInput.value = '';
-        cycleTypeGroup.style.display = 'block';
-        cycleTypeSelect.required = true;
     } else {
-        // 活期类型：隐藏到期日期和周期类型
+        // 其他类型（每日开放、最短持有期、定期开放式、固定天数循环、结构性周期）：隐藏到期日期
         expiryDateContainer.style.display = 'none';
         expiryDateInput.required = false;
         expiryDateInput.value = '';
-        cycleTypeGroup.style.display = 'none';
-        cycleTypeSelect.required = false;
     }
 }
 
@@ -357,7 +344,6 @@ async function handleWealthSubmit(e) {
         // 处理浮点数精度问题，确保金额精确到小数点后两位
         const amount = parseFloat(parseFloat(document.getElementById('wealthAmount').value).toFixed(2));
         let expiryDate = document.getElementById('wealthExpiryDate').value;
-        let cycleType = document.getElementById('cycleType')?.value;
         
         // 数据验证
         if (!platform) {
@@ -385,8 +371,8 @@ async function handleWealthSubmit(e) {
             return;
         }
         
-        // 处理到期日期和周期类型
-        if (type === '定期') {
+        // 处理到期日期
+        if (type === '封闭式') {
             if (!expiryDate) {
                 alert('请填写到期日期');
                 return;
@@ -401,27 +387,16 @@ async function handleWealthSubmit(e) {
                 alert('到期日期不能早于购买日期');
                 return;
             }
-            // 定期类型不需要周期类型
-            cycleType = null;
-        } else if (type === '周期') {
-            if (!cycleType) {
-                alert('请选择周期类型');
-                return;
-            }
-            // 周期类型不需要到期日期
-            expiryDate = null;
         } else {
-            // 活期类型不需要到期日期和周期类型
+            // 其他类型不需要到期日期
             expiryDate = null;
-            cycleType = null;
         }
         
         // 创建理财对象，添加用户名
-        const wealth = {
+        const wealthData = {
             platform,
             name,
             type,
-            cycleType, // 添加周期类型字段
             transactionType: 'buy', // 添加交易类型，购买时为'buy'
             redeemType: 'partial', // 添加赎回类型，默认为'partial'
             date,
@@ -437,7 +412,7 @@ async function handleWealthSubmit(e) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(wealth)
+            body: JSON.stringify(wealthData)
         });
         
         if (response.ok) {
@@ -451,6 +426,15 @@ async function handleWealthSubmit(e) {
             
             // 重新渲染表格
             await renderWealthTable();
+            
+            // 更新汇总信息
+            if (window.updateSummary) {
+                window.updateSummary();
+            }
+            // 更新最近动态
+            if (window.updateRecentActivities) {
+                window.updateRecentActivities();
+            }
             
             // 清空表单
             e.target.reset();
@@ -496,23 +480,17 @@ function mergeWealth() {
     // 按日期排序所有交易记录
     const sortedTransactions = [...currentWealth].sort((a, b) => new Date(a.date) - new Date(b.date));
     
-    // 当前活跃批次映射，key根据产品类型和周期类型生成
-    // 活期：平台_产品名称_产品类型
-    // 周期：平台_产品名称_产品类型_周期类型
+    // 当前活跃批次映射，key根据产品类型生成
+    // 每日开放：平台_产品名称_产品类型
+    // 其他类型：平台_产品名称_产品类型
     const activeBatches = {};
     
     for (const transaction of sortedTransactions) {
         if (transaction.transactionType === 'buy') {
-            // 活期和周期产品合并处理
-            if (transaction.type === '活期' || transaction.type === '周期') {
-                // 生成批次key：活期使用平台_产品名称_产品类型，周期使用平台_产品名称_产品类型_周期类型
-                let key;
-                if (transaction.type === '活期') {
-                    key = `${transaction.platform}_${transaction.name}_${transaction.type}`;
-                } else {
-                    // 周期产品，使用周期类型作为key的一部分
-                    key = `${transaction.platform}_${transaction.name}_${transaction.type}_${transaction.cycleType || '未知'}`;
-                }
+            // 每日开放和其他类型（除封闭式外）合并处理
+            if (transaction.type === '每日开放' || transaction.type === '最短持有期' || transaction.type === '定期开放式' || transaction.type === '固定天数循环' || transaction.type === '结构性周期') {
+                // 生成批次key：平台_产品名称_产品类型
+                const key = `${transaction.platform}_${transaction.name}_${transaction.type}`;
                 
                 // 如果没有当前活跃批次，创建新批次
                 if (!activeBatches[key]) {
@@ -520,7 +498,6 @@ function mergeWealth() {
                         platform: transaction.platform,
                         name: transaction.name,
                         type: transaction.type,
-                        cycleType: transaction.cycleType,
                         transactions: [],
                         totalBuyAmount: 0,
                         totalRedeemAmount: 0,
@@ -538,21 +515,19 @@ function mergeWealth() {
                     type: transaction.transactionType,
                     amount: parseFloat(transaction.amount.toFixed(2)),
                     expiryDate: transaction.expiryDate,
-                    redeemedAmount: parseFloat(transaction.redeemedAmount.toFixed(2)),
-                    cycleType: transaction.cycleType
+                    redeemedAmount: parseFloat(transaction.redeemedAmount.toFixed(2))
                 });
                 
                 // 更新批次金额
                 activeBatches[key].totalBuyAmount = parseFloat((activeBatches[key].totalBuyAmount + transaction.amount).toFixed(2));
                 activeBatches[key].currentAmount = parseFloat((activeBatches[key].totalBuyAmount - activeBatches[key].totalRedeemAmount).toFixed(2));
             } else {
-                // 定期产品，每个购买记录都创建一个独立的批次
-                // 为每个定期购买创建独立批次
+                // 封闭式产品，每个购买记录都创建一个独立的批次
+                // 为每个封闭式购买创建独立批次
                 const newBatch = {
                     platform: transaction.platform,
                     name: transaction.name,
                     type: transaction.type,
-                    cycleType: transaction.cycleType, // 保存周期类型到批次对象
                     transactions: [],
                     totalBuyAmount: 0,
                     totalRedeemAmount: 0,
@@ -569,8 +544,7 @@ function mergeWealth() {
                     type: transaction.transactionType,
                     amount: parseFloat(transaction.amount.toFixed(2)),
                     expiryDate: transaction.expiryDate,
-                    redeemedAmount: parseFloat(transaction.redeemedAmount.toFixed(2)),
-                    cycleType: transaction.cycleType // 添加周期类型
+                    redeemedAmount: parseFloat(transaction.redeemedAmount.toFixed(2))
                 });
                 
                 // 更新批次金额
@@ -590,17 +564,9 @@ function mergeWealth() {
                     batch.platform === transaction.platform && 
                     batch.name === transaction.name && 
                     batch.type === transaction.type) {
-                    // 对于周期产品，还需要匹配周期类型
-                    if (batch.type === '周期') {
-                        if (batch.cycleType === transaction.cycleType) {
-                            foundBatch = batch;
-                            break;
-                        }
-                    } else {
-                        // 活期和定期产品，不需要匹配周期类型
-                        foundBatch = batch;
-                        break;
-                    }
+                    // 所有类型只需要匹配平台、名称、类型即可
+                    foundBatch = batch;
+                    break;
                 }
             }
             
@@ -612,8 +578,7 @@ function mergeWealth() {
                     type: transaction.transactionType,
                     amount: parseFloat(transaction.amount.toFixed(2)),
                     expiryDate: transaction.expiryDate,
-                    redeemedAmount: parseFloat(transaction.redeemedAmount.toFixed(2)),
-                    cycleType: transaction.cycleType // 添加周期类型
+                    redeemedAmount: parseFloat(transaction.redeemedAmount.toFixed(2))
                 });
                 
                 // 更新批次金额
@@ -623,15 +588,9 @@ function mergeWealth() {
                 // 只根据是否使用全部赎回按钮来判断状态，不考虑持有金额
                 if (transaction.redeemType === 'full') {
                     foundBatch.status = 'redeemed';
-                    // 如果是活期或周期产品，从活跃批次映射中移除
-                    if (foundBatch.type === '活期' || foundBatch.type === '周期') {
-                        let key;
-                        if (foundBatch.type === '活期') {
-                            key = `${foundBatch.platform}_${foundBatch.name}_${foundBatch.type}`;
-                        } else {
-                            // 周期产品，使用周期类型作为key的一部分
-                            key = `${foundBatch.platform}_${foundBatch.name}_${foundBatch.type}_${foundBatch.cycleType || '未知'}`;
-                        }
+                    // 如果是每日开放或其他类型（除封闭式外），从活跃批次映射中移除
+                    if (foundBatch.type === '每日开放' || foundBatch.type === '最短持有期' || foundBatch.type === '定期开放式' || foundBatch.type === '固定天数循环' || foundBatch.type === '结构性周期') {
+                        const key = `${foundBatch.platform}_${foundBatch.name}_${foundBatch.type}`;
                         delete activeBatches[key];
                     }
                 }
@@ -649,8 +608,7 @@ function mergeWealth() {
                         type: transaction.transactionType,
                         amount: processedAmount,
                         expiryDate: transaction.expiryDate,
-                        redeemedAmount: processedRedeemedAmount,
-                        cycleType: transaction.cycleType // 添加周期类型
+                        redeemedAmount: processedRedeemedAmount
                     }],
                     totalBuyAmount: 0,
                     totalRedeemAmount: processedAmount,
@@ -684,22 +642,22 @@ function groupWealth() {
     }
     
     const groups = {
-        currentDemand: [], // 当前活期理财
-        currentFixed: [],   // 当前定期理财
-        historyDemand: [],  // 历史活期理财
-        historyFixed: []    // 历史定期理财
+        currentDemand: [], // 当前每日开放理财
+        currentFixed: [],   // 当前其他类型理财
+        historyDemand: [],  // 历史每日开放理财
+        historyFixed: []    // 历史其他类型理财
     };
     
     merged.forEach(wealth => {
         // 根据产品类型和状态分组
         if (wealth.status === 'active') {
-            if (wealth.type === '活期') {
+            if (wealth.type === '每日开放') {
                 groups.currentDemand.push(wealth);
             } else {
                 groups.currentFixed.push(wealth);
             }
         } else {
-            if (wealth.type === '活期') {
+            if (wealth.type === '每日开放') {
                 groups.historyDemand.push(wealth);
             } else {
                 groups.historyFixed.push(wealth);
@@ -720,12 +678,12 @@ function handleWealthSearch(e) {
 async function renderWealthTable() {
     const groups = groupWealth();
     
-    // 合并所有当前理财数据（活期+定期+周期）
+    // 合并所有当前理财数据（每日开放+其他类型）
     const allCurrentWealth = [...groups.currentDemand, ...groups.currentFixed];
     // 渲染当前理财表格
     await renderWealthTableSection('currentFundsBody', allCurrentWealth, 'current');
     
-    // 合并所有历史理财数据（活期+定期+周期）
+    // 合并所有历史理财数据（每日开放+其他类型）
     const allHistoryWealth = [...groups.historyDemand, ...groups.historyFixed];
     // 渲染历史理财表格
     await renderWealthTableSection('historyFundsBody', allHistoryWealth, 'history');
@@ -813,29 +771,20 @@ async function renderWealthTableSection(tableBodyId, wealthList, tableType, sort
                 // 分离购买和赎回记录
                 const buyTransactions = sortedTransactions.filter(t => t.type === 'buy');
                 
-                // 产品类型显示（含周期类型）
+                // 产品类型显示
                 let typeDisplay = wealth.type;
-                if (wealth.type === '周期') {
-                    const cycleType = wealth.cycleType || (buyTransactions[0] ? buyTransactions[0].cycleType : '');
-                    if (cycleType) {
-                        typeDisplay = `${wealth.type} (${cycleType})`;
-                    }
-                }
                 
-                // 确定到期日期/周期类型列显示内容
+                // 确定到期日期列显示内容
                 let expiryOrCycleDisplay = '';
-                if (wealth.type === '定期') {
+                if (wealth.type === '封闭式') {
                     expiryOrCycleDisplay = buyTransactions[0] ? buyTransactions[0].expiryDate : '';
-                } else if (wealth.type === '周期') {
-                    const cycleType = wealth.cycleType || (buyTransactions[0] ? buyTransactions[0].cycleType : '');
-                    expiryOrCycleDisplay = cycleType || '';
                 } else {
-                    // 活期类型始终显示"-"
+                    // 其他类型始终显示"-"
                     expiryOrCycleDisplay = '-';
                 }
                 
-                // 活期理财不显示多行记录，只显示一行
-                if (wealth.type === '活期' || buyTransactions.length <= 1) {
+                // 每日开放理财不显示多行记录，只显示一行
+                if (wealth.type === '每日开放' || buyTransactions.length <= 1) {
                     // 只显示一行记录，删除购买金额列
                     return `
                         <tr>
@@ -848,7 +797,7 @@ async function renderWealthTableSection(tableBodyId, wealthList, tableType, sort
                                 <button class="btn btn-small btn-secondary" onclick="viewWealthTransactions(${JSON.stringify(wealth).replace(/"/g, '&quot;')})">查看详情</button>
                             </td>
                             <td>
-                                <button class="btn btn-small btn-success" onclick="addPurchaseWealth(${JSON.stringify(wealth).replace(/"/g, '&quot;')})">购买</button>
+                                <button class="btn btn-small btn-buy" onclick="addPurchaseWealth(${JSON.stringify(wealth).replace(/"/g, '&quot;')})">购买</button>
                                 <button class="btn btn-small btn-primary" onclick="partialRedeemWealth(${JSON.stringify(wealth).replace(/"/g, '&quot;')})">部分赎回</button>
                                 <button class="btn btn-small btn-danger" onclick="fullRedeemWealth(${JSON.stringify(wealth).replace(/"/g, '&quot;')})">全部赎回</button>
                                 <button class="btn btn-small btn-secondary" onclick="calculateYieldModalWealth(${JSON.stringify(wealth).replace(/"/g, '&quot;')})">试算收益</button>
@@ -856,7 +805,7 @@ async function renderWealthTableSection(tableBodyId, wealthList, tableType, sort
                         </tr>
                     `;
                 } else {
-                    // 非活期且有多笔交易，显示多行记录，删除购买金额列
+                    // 非每日开放且有多笔交易，显示多行记录，删除购买金额列
                     // 确定最大记录数（只考虑购买记录）
                     const maxRows = buyTransactions.length;
                     
@@ -879,7 +828,7 @@ async function renderWealthTableSection(tableBodyId, wealthList, tableType, sort
                                         <button class="btn btn-small btn-secondary" onclick="viewWealthTransactions(${JSON.stringify(wealth).replace(/"/g, '&quot;')})">查看详情</button>
                                     </td>
                                     <td rowspan="${maxRows}">
-                                        <button class="btn btn-small btn-success" onclick="addPurchaseWealth(${JSON.stringify(wealth).replace(/"/g, '&quot;')})">购买</button>
+                                        <button class="btn btn-small btn-buy" onclick="addPurchaseWealth(${JSON.stringify(wealth).replace(/"/g, '&quot;')})">购买</button>
                                         <button class="btn btn-small btn-primary" onclick="partialRedeemWealth(${JSON.stringify(wealth).replace(/"/g, '&quot;')})">部分赎回</button>
                                         <button class="btn btn-small btn-danger" onclick="fullRedeemWealth(${JSON.stringify(wealth).replace(/"/g, '&quot;')})">全部赎回</button>
                                         <button class="btn btn-small btn-secondary" onclick="calculateYieldModalWealth(${JSON.stringify(wealth).replace(/"/g, '&quot;')})">试算收益</button>
@@ -956,7 +905,7 @@ async function renderWealthTableSection(tableBodyId, wealthList, tableType, sort
                 
                 // 获取周期类型信息
                 let typeDisplay = wealth.type;
-                if (wealth.type === '周期') {
+                if (wealth.type === '最短持有期' || wealth.type === '定期开放式' || wealth.type === '固定天数循环' || wealth.type === '结构性周期') {
                     // 直接使用财富对象中的周期类型
                     const cycleType = wealth.cycleType;
                     if (cycleType) {
@@ -1108,15 +1057,8 @@ function toggleWealthHistory(tableBodyId, sortedWealth, defaultDisplayCount) {
                 }
             }
             
-            // 获取周期类型信息
+            // 产品类型显示
             let typeDisplay = wealth.type;
-            if (wealth.type === '周期') {
-                // 直接使用财富对象中的周期类型
-                const cycleType = wealth.cycleType;
-                if (cycleType) {
-                    typeDisplay = `${wealth.type} (${cycleType})`;
-                }
-            }
             
             // 历史理财表格行
             return `
@@ -1563,7 +1505,9 @@ function showYieldCalculationWealthModal(wealth) {
         const closeBtn = document.getElementById('closeYieldWealthModalBtn');
         
         // 计算按钮事件
-        const handleCalculate = () => {
+        const handleCalculate = (e) => {
+            e.stopPropagation(); // 阻止事件冒泡，防止模态框关闭
+            
             const calculationAmount = parseFloat(document.getElementById('calculationAmount').value);
             const resultEl = document.getElementById('yieldResult');
             const statusEl = document.getElementById('yieldCalculationWealthStatus');
@@ -1698,6 +1642,10 @@ function showAddPurchaseWealthModal(wealth) {
                     <label for="purchaseDate">购买日期:</label>
                     <input type="text" id="purchaseDate" placeholder="格式：YYYYMMDD" required>
                 </div>
+                <div class="form-group" id="expiryDateGroup" style="display: none;">
+                    <label for="purchaseExpiryDate">到期日期:</label>
+                    <input type="text" id="purchaseExpiryDate" placeholder="格式：YYYYMMDD">
+                </div>
                 <div class="form-group">
                     <label for="purchaseAmount">购买金额:</label>
                     <input type="number" id="purchaseAmount" step="0.01" placeholder="请输入购买金额" required>
@@ -1732,6 +1680,19 @@ function showAddPurchaseWealthModal(wealth) {
     modal.querySelector('#purchaseAmount').value = '';
     modal.querySelector('#addPurchaseWealthStatus').textContent = '';
     
+    // 根据产品类型显示/隐藏到期日期输入框
+    const expiryDateGroup = modal.querySelector('#expiryDateGroup');
+    const expiryDateInput = modal.querySelector('#purchaseExpiryDate');
+    if (wealth.type === '封闭式') {
+        expiryDateGroup.style.display = 'block';
+        expiryDateInput.required = true;
+        expiryDateInput.value = '';
+    } else {
+        expiryDateGroup.style.display = 'none';
+        expiryDateInput.required = false;
+        expiryDateInput.value = '';
+    }
+    
     // 显示模态框
     modal.style.display = 'flex';
     
@@ -1745,6 +1706,7 @@ function showAddPurchaseWealthModal(wealth) {
             // 使用模态框元素的querySelector确保只获取当前模态框中的元素
             const purchaseDate = modal.querySelector('#purchaseDate').value;
             const purchaseAmount = parseFloat(modal.querySelector('#purchaseAmount').value);
+            const expiryDate = modal.querySelector('#purchaseExpiryDate').value;
             const statusEl = modal.querySelector('#addPurchaseWealthStatus');
             
             // 验证输入
@@ -1753,11 +1715,18 @@ function showAddPurchaseWealthModal(wealth) {
                 return;
             }
             
+            // 封闭式产品需要验证到期日期
+            if (wealth.type === '封闭式' && !expiryDate) {
+                statusEl.textContent = '请填写到期日期';
+                return;
+            }
+            
             // 格式化日期
             const formattedDate = window.formatDate(purchaseDate);
+            const formattedExpiryDate = expiryDate ? window.formatDate(expiryDate) : '';
             
             modal.style.display = 'none';
-            resolve({ date: formattedDate, amount: purchaseAmount });
+            resolve({ date: formattedDate, amount: purchaseAmount, expiryDate: formattedExpiryDate });
         };
         
         // 取消按钮事件
@@ -1808,7 +1777,7 @@ async function addPurchaseWealth(wealth) {
             transactionType: 'buy',
             redeemType: 'partial',
             date: result.date,
-            expiryDate: wealth.transactions && Array.isArray(wealth.transactions) && wealth.transactions.length > 0 ? wealth.transactions[0].expiryDate : '',
+            expiryDate: result.expiryDate || (wealth.transactions && Array.isArray(wealth.transactions) && wealth.transactions.length > 0 ? wealth.transactions[0].expiryDate : ''),
             amount: result.amount,
             redeemedAmount: 0,
             username: getCurrentUser().username
@@ -1845,7 +1814,7 @@ function viewWealthTransactions(wealth) {
         modal.id = 'viewWealthTransactionsModal';
         modal.className = 'modal';
         modal.innerHTML = `
-            <div class="modal-content" style="max-height: 80vh; overflow-y: auto; max-width: 1000px; width: 100%;">
+            <div class="modal-content" style="max-height: 80vh; overflow-y: auto; max-width: 800px; width: 95vw; box-sizing: border-box; padding: 15px;">
                 <h2>交易记录详情</h2>
                 <div id="wealthTransactionDetailsContent"></div>
                 <div class="form-actions" style="margin-top: 20px;">
@@ -1894,57 +1863,60 @@ function viewWealthTransactions(wealth) {
     const totalBuyAmount = wealth.totalBuyAmount || 0;
     const totalRedeemAmount = wealth.totalRedeemAmount || 0;
     
-    // 获取产品的到期日期或周期类型
-    let expiryOrCycleInfo = '';
+    // 获取产品的到期日期
+    let expiryDateInfo = '';
     if (wealth.transactions && Array.isArray(wealth.transactions) && wealth.transactions.length > 0) {
         const firstTransaction = wealth.transactions[0];
-        if (wealth.type === '定期') {
-            expiryOrCycleInfo = `<div><strong>到期日期:</strong> ${firstTransaction.expiryDate || '未设置'}</div>`;
-        } else if (wealth.type === '周期') {
-            expiryOrCycleInfo = `<div><strong>周期类型:</strong> ${firstTransaction.cycleType || '未设置'}</div>`;
+        if (wealth.type === '封闭式') {
+            expiryDateInfo = `<div><strong>到期日期:</strong> ${firstTransaction.expiryDate || '未设置'}</div>`;
         }
     }
     
     contentEl.innerHTML = `
-        <h3>${wealth.platform} - ${wealth.name}</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+            <h3 style="margin: 0; flex: 1;">${wealth.platform} - ${wealth.name}</h3>
+            <button class="btn btn-small btn-edit" onclick="editWealthProductName('${wealth.platform}', '${wealth.name}', '${wealth.type}')">编辑</button>
+        </div>
         <div style="margin: 10px 0; padding: 10px; background-color: #f5f5f5; border-radius: 5px;">
-            <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center;">
-                <div><strong>产品类型:</strong> ${wealth.type}</div>
-                ${expiryOrCycleInfo}
-                <div><strong>总购买金额:</strong> ${formatAmount(totalBuyAmount)}</div>
-                <div><strong>总赎回金额:</strong> ${formatAmount(totalRedeemAmount)}</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                <div style="flex: 1 1 150px;"><strong>产品类型:</strong> ${wealth.type}</div>
+                ${expiryDateInfo}
+                <div style="flex: 1 1 150px;"><strong>总购买金额:</strong> ${formatAmount(totalBuyAmount)}</div>
+                <div style="flex: 1 1 150px;"><strong>总赎回金额:</strong> ${formatAmount(totalRedeemAmount)}</div>
             </div>
         </div>
-        <table style="width: 100%; table-layout: fixed; border-collapse: collapse;">
-            <thead>
-                <tr style="background-color: #f0f0f0;">
-                    <th style="width: 120px; min-width: 120px; padding: 8px; border: 1px solid #ddd; text-align: center;">日期</th>
-                    <th style="width: 100px; min-width: 100px; padding: 8px; border: 1px solid #ddd; text-align: center;">类型</th>
-                    <th style="width: 120px; min-width: 120px; padding: 8px; border: 1px solid #ddd; text-align: right;">金额</th>
-                    ${showActions ? `<th style="width: 160px; min-width: 160px; padding: 8px; border: 1px solid #ddd; text-align: center;">操作</th>` : ''}
-                </tr>
-            </thead>
-            <tbody>
-                ${sortedTransactions.map(transaction => {
-                    const typeText = transaction.type === 'buy' ? '购买' : '赎回';
-                    return `
-                        <tr>
-                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${transaction.date}</td>
-                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${typeText}</td>
-                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${formatAmount(transaction.amount)}</td>
-                            ${showActions ? `
-                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
-                                <button class="btn btn-small btn-edit" 
-                                        onclick="editWealthTransactionById(${transaction.id}, '${wealth.platform}', '${wealth.name}', '${wealth.type}')">编辑</button>
-                                <button class="btn btn-small btn-danger" 
-                                        onclick="deleteWealthTransactionById(${transaction.id}, '${wealth.platform}', '${wealth.name}', '${wealth.type}')">删除</button>
-                            </td>
-                            ` : ''}
-                        </tr>
-                    `;
-                }).join('')}
-            </tbody>
-        </table>
+        <div style="overflow-x: auto; margin: 10px 0;">
+            <table style="width: 100%; min-width: 480px; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f0f0f0;">
+                        <th style="width: 25%; padding: 8px; border: 1px solid #ddd; text-align: center;">日期</th>
+                        <th style="width: 20%; padding: 8px; border: 1px solid #ddd; text-align: center;">类型</th>
+                        <th style="width: 25%; padding: 8px; border: 1px solid #ddd; text-align: right;">金额</th>
+                        ${showActions ? `<th style="width: 30%; padding: 8px; border: 1px solid #ddd; text-align: center;">操作</th>` : ''}
+                    </tr>
+                </thead>
+                <tbody>
+                    ${sortedTransactions.map(transaction => {
+                        const typeText = transaction.type === 'buy' ? '购买' : '赎回';
+                        return `
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${transaction.date}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${typeText}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${formatAmount(transaction.amount)}</td>
+                                ${showActions ? `
+                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center; white-space: nowrap;">
+                                    <button class="btn btn-small btn-edit" 
+                                            onclick="editWealthTransactionById(${transaction.id}, '${wealth.platform}', '${wealth.name}', '${wealth.type}')">编辑</button>
+                                    <button class="btn btn-small btn-danger" 
+                                            onclick="deleteWealthTransactionById(${transaction.id}, '${wealth.platform}', '${wealth.name}', '${wealth.type}')">删除</button>
+                                </td>
+                                ` : ''}
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
     `;
     
     // 显示模态框
@@ -1984,6 +1956,152 @@ function viewWealthTransactions(wealth) {
         };
         document.addEventListener('keydown', handleEsc);
     });
+}
+
+// 编辑理财产品名称
+function editWealthProductName(platform, name, type) {
+    // 创建模态框元素
+    let modal = document.getElementById('editWealthProductNameModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'editWealthProductNameModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h2>编辑产品名称</h2>
+                <div style="margin: 15px 0;">
+                    <label for="editWealthName" style="margin: 0 0 5px 0; display: block;">产品名称:</label>
+                    <input type="text" id="editWealthName" placeholder="请输入新的产品名称" style="width: 100%; padding: 10px; box-sizing: border-box; font-size: 14px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div id="editWealthNameStatus" style="margin: 15px 0; color: red;"></div>
+                <div class="form-actions">
+                    <button id="editWealthNameConfirmBtn" class="btn btn-primary">确认修改</button>
+                    <button id="editWealthNameCancelBtn" class="btn btn-secondary">取消</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // 添加样式
+        modal.style.cssText = `
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        `;
+        
+        // 调整弹窗内容样式
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.style.maxWidth = '500px';
+            modalContent.style.width = '90%';
+            modalContent.style.padding = '30px';
+        }
+    }
+    
+    // 设置表单值
+    document.getElementById('editWealthName').value = name;
+    document.getElementById('editWealthNameStatus').textContent = '';
+    
+    // 保存当前编辑的产品信息
+    window.currentEditingWealth = {
+        platform,
+        name,
+        type
+    };
+    
+    // 显示模态框
+    modal.style.display = 'flex';
+    
+    // 添加事件监听器
+    const confirmBtn = document.getElementById('editWealthNameConfirmBtn');
+    const cancelBtn = document.getElementById('editWealthNameCancelBtn');
+    
+    // 确认按钮事件
+    const handleConfirm = async () => {
+        const newName = document.getElementById('editWealthName').value.trim();
+        const statusEl = document.getElementById('editWealthNameStatus');
+        
+        if (!newName) {
+            statusEl.textContent = '请输入产品名称';
+            return;
+        }
+        
+        const { platform, name: oldName, type } = window.currentEditingWealth;
+        
+        try {
+            // 遍历所有理财记录，更新产品名称
+            for (let i = 0; i < currentWealth.length; i++) {
+                const wealth = currentWealth[i];
+                if (wealth.platform === platform && wealth.name === oldName && wealth.type === type) {
+                    wealth.name = newName;
+                    // 保存到数据库
+                    await window.dbManager.save(STORES.WEALTH, wealth);
+                }
+            }
+            
+            // 重新加载数据
+            await window.loadWealth();
+            
+            // 重新渲染理财列表
+            renderWealthTable();
+            
+            // 刷新交易记录详情弹窗（如果打开）
+            const modal = document.getElementById('viewWealthTransactionsModal');
+            if (modal && modal.style.display !== 'none') {
+                // 重新加载数据后，找到对应的wealth对象
+                const mergedWealth = mergeWealth();
+                const wealth = mergedWealth.find(w => w.platform === platform && w.name === newName && w.type === type);
+                if (wealth) {
+                    viewWealthTransactions(wealth);
+                }
+            }
+            
+            // 关闭模态框
+            document.getElementById('editWealthProductNameModal').style.display = 'none';
+            
+            // 显示成功提示
+            alert('产品名称修改成功！');
+        } catch (error) {
+            console.error('修改产品名称失败:', error);
+            alert('修改失败，请重试！');
+        }
+    };
+    
+    // 取消按钮事件
+    const handleCancel = () => {
+        document.getElementById('editWealthProductNameModal').style.display = 'none';
+    };
+    
+    // 移除之前的事件监听器
+    confirmBtn.removeEventListener('click', handleConfirm);
+    cancelBtn.removeEventListener('click', handleCancel);
+    
+    // 添加新的事件监听器
+    confirmBtn.addEventListener('click', handleConfirm);
+    cancelBtn.addEventListener('click', handleCancel);
+    
+    // 点击模态框外部关闭
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+    
+    // ESC键关闭
+    const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+            modal.style.display = 'none';
+            document.removeEventListener('keydown', handleEsc);
+        }
+    };
+    document.addEventListener('keydown', handleEsc);
 }
 
 // 编辑交易记录

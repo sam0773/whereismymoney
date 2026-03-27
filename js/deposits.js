@@ -508,6 +508,10 @@ async function handleDepositSubmit(e) {
             
             // 更新汇总信息
             window.updateSummary();
+            // 更新最近动态
+            if (window.updateRecentActivities) {
+                window.updateRecentActivities();
+            }
         }
         
         // 清空表单
@@ -581,7 +585,7 @@ async function renderDepositTable() {
                 <td class="transfer-out">¥${parseFloat(deposit.interest).toFixed(2)}</td>
                 <td>${deposit.remarks || '-'}</td>
                 <td>
-                    <button class="btn btn-small btn-calendar" onclick="addToCalendar(${deposit.id})">添加到日历</button>
+                    <button class="btn btn-small btn-edit" onclick="modifyDepositRemarks(${deposit.id})">修改备注</button>
                     <button class="btn btn-small btn-delete" onclick="deleteDeposit(${deposit.id})">删除</button>
                 </td>
             </tr>
@@ -879,6 +883,140 @@ async function confirmDeposit(id) {
     }
 }
 
+// 创建并显示存款修改备注弹窗
+function showEditDepositRemarksModal(id) {
+    // 创建模态框元素
+    let modal = document.getElementById('editDepositRemarksModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'editDepositRemarksModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h2>修改备注</h2>
+                <div style="margin: 15px 0;">
+                    <label for="editDepositRemarks" style="margin: 0 0 5px 0; display: block;">备注:</label>
+                    <textarea id="editDepositRemarks" placeholder="请输入备注" style="width: 100%; padding: 10px; box-sizing: border-box; font-size: 14px; min-height: 100px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                </div>
+                <div id="editDepositRemarksStatus" style="margin: 15px 0; color: red;"></div>
+                <div class="form-actions">
+                    <button id="editDepositRemarksConfirmBtn" class="btn btn-primary">确认修改</button>
+                    <button id="editDepositRemarksCancelBtn" class="btn btn-secondary">取消</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // 添加样式
+        modal.style.cssText = `
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        `;
+        
+        // 调整弹窗内容样式
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.style.maxWidth = '500px';
+            modalContent.style.width = '90%';
+            modalContent.style.padding = '30px';
+        }
+    }
+    
+    // 查找存款记录
+    const deposit = currentDeposits.find(d => d.id === id);
+    if (!deposit) return;
+    
+    // 设置表单值
+    document.getElementById('editDepositRemarks').value = deposit.remarks || '';
+    document.getElementById('editDepositRemarksStatus').textContent = '';
+    
+    // 保存当前编辑的存款ID
+    window.currentEditingDepositId = id;
+    
+    // 显示模态框
+    modal.style.display = 'flex';
+    
+    // 返回Promise，等待用户确认
+    return new Promise((resolve) => {
+        const confirmBtn = document.getElementById('editDepositRemarksConfirmBtn');
+        const cancelBtn = document.getElementById('editDepositRemarksCancelBtn');
+        
+        // 确认按钮事件
+        const handleConfirm = () => {
+            const remarks = document.getElementById('editDepositRemarks').value;
+            modal.style.display = 'none';
+            resolve(remarks);
+        };
+        
+        // 取消按钮事件
+        const handleCancel = () => {
+            modal.style.display = 'none';
+            resolve(null);
+        };
+        
+        // 移除之前的事件监听器
+        confirmBtn.removeEventListener('click', handleConfirm);
+        cancelBtn.removeEventListener('click', handleCancel);
+        
+        // 添加新的事件监听器
+        confirmBtn.addEventListener('click', handleConfirm);
+        cancelBtn.addEventListener('click', handleCancel);
+        
+        // 点击模态框外部关闭
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                resolve(null);
+            }
+        });
+        
+        // ESC键关闭
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') {
+                modal.style.display = 'none';
+                resolve(null);
+                document.removeEventListener('keydown', handleEsc);
+            }
+        };
+        document.addEventListener('keydown', handleEsc);
+    });
+}
+
+// 修改存款备注
+async function modifyDepositRemarks(id) {
+    // 显示修改备注弹窗
+    const newRemarks = await showEditDepositRemarksModal(id);
+    if (newRemarks === null) {
+        return;
+    }
+    
+    try {
+        // 更新本地数据
+        const deposit = currentDeposits.find(d => d.id === id);
+        if (deposit) {
+            deposit.remarks = newRemarks;
+            
+            // 使用dbManager保存数据到数据库
+            await window.dbManager.save(STORES.DEPOSITS, deposit);
+        }
+        
+        // 更新界面
+        renderDepositTable();
+        renderExpiredDepositTable();
+    } catch (error) {
+        console.error('修改存款备注失败:', error);
+        alert('修改失败，请重试！');
+    }
+}
+
 // 删除定期存款
 async function deleteDeposit(id) {
     // 显示二次确认弹窗
@@ -1080,7 +1218,7 @@ function renderTableBody(tbody, deposits, type) {
                 <td class="amount">¥${parseFloat(deposit.interest).toFixed(2)}</td>
                 <td>${deposit.remarks || '-'}</td>
                 <td>
-                    ${type === 'active' ? '<button class="btn btn-small btn-calendar" onclick="addToCalendar(' + deposit.id + ')">添加到日历</button>' : ''}
+                    ${type === 'active' ? '<button class="btn btn-small btn-edit" onclick="modifyDepositRemarks(' + deposit.id + ')">修改备注</button>' : ''}
                     ${confirmButton}
                     <button class="btn btn-small btn-delete" onclick="deleteDeposit(${deposit.id})">删除</button>
                 </td>

@@ -190,12 +190,12 @@ h3 {
 }
 
 .btn-calendar {
-    background-color: #2ecc71;
+    background-color: #4CAF50;
     color: white;
 }
 
 .btn-calendar:hover {
-    background-color: #27ae60;
+    background-color: #45a049;
 }
 
 .btn-delete {
@@ -220,6 +220,52 @@ h3 {
     background-color: #95a5a6;
     color: white;
     cursor: not-allowed;
+}
+
+/* 新按钮样式 */
+.btn-edit {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-edit:hover {
+    background-color: #45a049;
+}
+
+.btn-buy {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-buy:hover {
+    background-color: #45a049;
+}
+
+.btn-bank-to-stock {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-bank-to-stock:hover {
+    background-color: #45a049;
+}
+
+.btn-stock-to-bank {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-stock-to-bank:hover {
+    background-color: #2980b9;
+}
+
+.btn-partial-redemption {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-partial-redemption:hover {
+    background-color: #2980b9;
 }
 
 /* 银证转账样式 */
@@ -1495,6 +1541,14 @@ tr:last-child td {
     margin-bottom: 15px;
     color: #333;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.recent-activities-icon {
+    font-size: 24px;
 }
 
 .action-buttons {
@@ -1546,8 +1600,7 @@ tr:last-child td {
 
 .activity-item {
     display: flex;
-    gap: 15px;
-    padding: 15px 0;
+    padding: 8px 0;
     border-bottom: 1px solid #f0f0f0;
 }
 

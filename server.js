@@ -14,7 +14,7 @@ if (!fs.existsSync(dataDir)) {
 const db = require('./db');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 9000;
 
 // 中间件
 app.use(cors());
@@ -37,6 +37,35 @@ app.use('/api/fund', fundRouter);
 app.use('/api/wealth', wealthRouter);
 app.use('/api/bankSecuritiesTransfers', bankSecuritiesTransfersRouter);
 app.use('/api/other', otherRouter);
+
+// 页面路由
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/overview', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages/overview.html'));
+});
+
+app.get('/deposit', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages/deposit.html'));
+});
+
+app.get('/fund', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages/fund.html'));
+});
+
+app.get('/wealth', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages/wealth.html'));
+});
+
+app.get('/stock', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages/stock.html'));
+});
+
+app.get('/other', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages/other.html'));
+});
 
 // 清空所有数据（仅管理员可用）
 app.delete('/api/clear-database', (req, res) => {
