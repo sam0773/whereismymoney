@@ -16,11 +16,9 @@ function initStocks() {
     bindModalEvents();
     
     // 设置默认日期
-    const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0].replace(/-/g, '');
     const transferDateInput = document.getElementById('transferDate');
     if (transferDateInput) {
-        transferDateInput.value = formattedDate;
+        transferDateInput.value = getTodayLocalDate();
         transferDateInput.addEventListener('input', handleDateInput);
     }
     

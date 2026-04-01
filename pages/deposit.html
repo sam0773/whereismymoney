@@ -62,21 +62,18 @@
         const dbManager = new DBManager();
         window.dbManager = dbManager;
 
-        const tabContentCache = {};
-
         async function loadTabContent(tabId) {
-            if (tabContentCache[tabId]) {
-                document.getElementById(tabId).innerHTML = tabContentCache[tabId];
-                callInitFunction(tabId);
+            const tabElement = document.getElementById(tabId);
+            if (!tabElement) {
+                console.warn(`选项卡元素 ${tabId} 不存在，跳过加载`);
                 return;
             }
             
             try {
-                const response = await fetch(`../tabs/${tabId}.html`);
+                const response = await fetch(`../tabs/${tabId}.html?${Date.now()}`);
                 if (response.ok) {
                     const content = await response.text();
-                    tabContentCache[tabId] = content;
-                    document.getElementById(tabId).innerHTML = content;
+                    tabElement.innerHTML = content;
                     callInitFunction(tabId);
                 } else {
                     console.error(`加载选项卡 ${tabId} 失败: ${response.status}`);

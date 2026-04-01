@@ -476,9 +476,7 @@ async function handleFundSubmit(e) {
         fundCategorySelect.style.backgroundColor = '';
         
         // 设置默认日期为今天
-        const today = new Date();
-        const formattedDate = today.toISOString().split('T')[0].replace(/-/g, '');
-        document.getElementById('fundDate').value = formattedDate;
+        document.getElementById('fundDate').value = getTodayLocalDate();
         
         alert('基金添加成功！');
         }
@@ -1399,6 +1397,14 @@ function showYieldCalculationFundModal(fund) {
             justify-content: center;
             align-items: center;
         `;
+        
+        // 阻止modal-content上的事件冒泡，防止手机端触摸事件导致弹窗关闭
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.addEventListener('click', (e) => e.stopPropagation());
+            modalContent.addEventListener('touchstart', (e) => e.stopPropagation());
+            modalContent.addEventListener('touchend', (e) => e.stopPropagation());
+        }
     }
     
     // 重置内容
@@ -1416,7 +1422,8 @@ function showYieldCalculationFundModal(fund) {
         
         // 计算按钮事件
         const handleCalculate = (e) => {
-            e.stopPropagation(); // 阻止事件冒泡，防止模态框关闭
+            e.preventDefault();
+            e.stopPropagation();
             
             const calculationAmount = parseFloat(document.getElementById('calculationAmount').value);
             const resultEl = document.getElementById('yieldResult');
@@ -2443,11 +2450,9 @@ function bindFundEvents() {
     }
     
     // 设置默认日期为今天
-    const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0].replace(/-/g, '');
     const dateInput = document.getElementById('fundDate');
     if (dateInput) {
-        dateInput.value = formattedDate;
+        dateInput.value = getTodayLocalDate();
     }
     
     // 基金汇总信息隐藏按钮事件

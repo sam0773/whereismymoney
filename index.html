@@ -202,25 +202,13 @@
     
     <!-- 动态加载选项卡内容 -->
     <script>
-        // 缓存已加载的选项卡内容
-        const tabContentCache = {};
-        
         // 加载选项卡内容
         async function loadTabContent(tabId) {
-            // 如果已缓存，直接使用
-            if (tabContentCache[tabId]) {
-                document.getElementById(tabId).innerHTML = tabContentCache[tabId];
-                // 调用对应初始化函数
-                callInitFunction(tabId);
-                return;
-            }
-            
-            // 否则从文件加载
+            // 从文件加载，每次都重新获取
             try {
-                const response = await fetch(`tabs/${tabId}.html`);
+                const response = await fetch(`tabs/${tabId}.html?${Date.now()}`);
                 if (response.ok) {
                     const content = await response.text();
-                    tabContentCache[tabId] = content;
                     document.getElementById(tabId).innerHTML = content;
                     // 调用对应初始化函数
                     callInitFunction(tabId);

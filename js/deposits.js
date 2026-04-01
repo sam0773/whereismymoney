@@ -39,9 +39,7 @@ function initDeposits() {
     // 初始化存入日期为今天
     const dateInput = document.getElementById('depositDate');
     if (dateInput) {
-        const today = new Date();
-        const formattedDate = today.toISOString().split('T')[0];
-        dateInput.value = formattedDate;
+        dateInput.value = getTodayLocalDate();
     }
     
     // 加载数据并渲染表格
@@ -239,8 +237,11 @@ function bindDepositFormEvents() {
                 const months = periodUnit === 'year' ? period * 12 : period;
                 expiryDateObj.setMonth(expiryDateObj.getMonth() + months);
                 
-                // 更新到期日输入框，使用ISO格式
-                expiryDateInput.value = expiryDateObj.toISOString().split('T')[0];
+                // 更新到期日输入框，使用本地日期格式
+                const year = expiryDateObj.getFullYear();
+                const month = String(expiryDateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(expiryDateObj.getDate()).padStart(2, '0');
+                expiryDateInput.value = `${year}-${month}-${day}`;
                 
                 // 自动计算利息
                 autoCalculateInterest();
@@ -518,7 +519,7 @@ async function handleDepositSubmit(e) {
         e.target.reset();
         
         // 设置默认日期为今天
-        document.getElementById('depositDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('depositDate').value = getTodayLocalDate();
         
         // 弹出成功提示
         alert('定期存款添加成功！');

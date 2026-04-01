@@ -1,5 +1,14 @@
 // 公共函数模块
 
+// 获取今天的日期（本地时间，YYYY-MM-DD格式）
+function getTodayLocalDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 // 格式化日期函数（支持多种格式：YYYY-MM-DD、8位数字、Excel序列号、YYYY/M/D、YYYY/MM/DD）
 function formatDate(dateValue) {
     // 如果已经是YYYY-MM-DD格式，直接返回
@@ -588,16 +597,22 @@ function switchTab(tabName) {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    const tabBtn = document.querySelector(`[data-tab="${tabName}"]`);
+    if (tabBtn) {
+        tabBtn.classList.add('active');
+    }
     
     // 更新内容显示
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
     });
-    document.getElementById(tabName).classList.add('active');
+    const tabContent = document.getElementById(tabName);
+    if (tabContent) {
+        tabContent.classList.add('active');
+    }
     
-    // 加载选项卡内容
-    if (window.loadTabContent) {
+    // 加载选项卡内容（只在当前页面有该选项卡元素时才加载）
+    if (window.loadTabContent && document.getElementById(tabName)) {
         window.loadTabContent(tabName);
     }
     
@@ -705,8 +720,7 @@ function bindEvents() {
     if (depositDateInput) {
         depositDateInput.addEventListener('input', handleDateInput);
         // 设置默认日期为今天
-        const today = new Date().toISOString().split('T')[0];
-        depositDateInput.value = today;
+        depositDateInput.value = getTodayLocalDate();
     }
     
     const depositExpiryDateInput = document.getElementById('depositExpiryDate');
@@ -718,8 +732,7 @@ function bindEvents() {
     if (fundDateInput) {
         fundDateInput.addEventListener('input', handleDateInput);
         // 设置默认日期为今天
-        const today = new Date().toISOString().split('T')[0];
-        fundDateInput.value = today;
+        fundDateInput.value = getTodayLocalDate();
     }
     
     // 财富管理表单日期输入事件 - 检查元素是否存在
@@ -727,8 +740,7 @@ function bindEvents() {
     if (wealthDateInput) {
         wealthDateInput.addEventListener('input', handleDateInput);
         // 设置默认日期为今天
-        const today = new Date().toISOString().split('T')[0];
-        wealthDateInput.value = today;
+        wealthDateInput.value = getTodayLocalDate();
     }
     
     // 存期和到期日联动计算 - 检查元素是否存在
@@ -893,6 +905,7 @@ function updateAmountsDisplay() {
 }
 
 // 导出函数
+window.getTodayLocalDate = getTodayLocalDate;
 window.formatDate = formatDate;
 window.formatDateForDisplay = formatDateForDisplay;
 window.formatAmountForDisplay = formatAmountForDisplay;
@@ -1184,32 +1197,31 @@ function calculateAssetDistribution() {
     
     for (const transaction of sortedWealthTransactions) {
         if (transaction.transactionType === 'buy') {
-            if (transaction.type === '活期' || transaction.type === '周期' || transaction.type === '定期') {
-                let key;
-                if (transaction.type === '活期') {
-                    key = `${transaction.platform}_${transaction.name}_${transaction.type}`;
-                } else if (transaction.type === '周期') {
-                    key = `${transaction.platform}_${transaction.name}_${transaction.type}_${transaction.cycleType || '未知'}`;
-                } else {
-                    key = `${transaction.id}_${transaction.date}`;
-                }
-                if (!activeBatches[key]) {
-                    const newBatch = { platform: transaction.platform, name: transaction.name, type: transaction.type, cycleType: transaction.cycleType, transactions: [], totalBuyAmount: 0, totalRedeemAmount: 0, currentAmount: 0, status: 'active' };
-                    activeBatches[key] = newBatch;
-                    allBatches.push(newBatch);
-                }
-                activeBatches[key].transactions.push({ id: transaction.id, date: transaction.date, type: transaction.transactionType, amount: parseFloat(transaction.amount || 0), expiryDate: transaction.expiry_date, redeemedAmount: parseFloat(transaction.redeemedAmount || 0), cycleType: transaction.cycleType, redeemType: transaction.redeemType || '' });
-                activeBatches[key].totalBuyAmount += parseFloat(transaction.amount || 0);
-                activeBatches[key].totalRedeemAmount += parseFloat(transaction.redeemedAmount || 0);
-                activeBatches[key].currentAmount = activeBatches[key].totalBuyAmount - activeBatches[key].totalRedeemAmount;
+            // 支持所有理财产品类型
+            let key;
+            if (transaction.type === '活期' || transaction.type === '每日开放') {
+                key = `${transaction.platform}_${transaction.name}_${transaction.type}`;
+            } else if (transaction.type === '周期' || transaction.type === '最短持有期' || transaction.type === '定期开放式' || transaction.type === '固定天数循环' || transaction.type === '结构性周期') {
+                key = `${transaction.platform}_${transaction.name}_${transaction.type}_${transaction.cycleType || '未知'}`;
+            } else {
+                key = `${transaction.id}_${transaction.date}`;
             }
+            if (!activeBatches[key]) {
+                const newBatch = { platform: transaction.platform, name: transaction.name, type: transaction.type, cycleType: transaction.cycleType, transactions: [], totalBuyAmount: 0, totalRedeemAmount: 0, currentAmount: 0, status: 'active' };
+                activeBatches[key] = newBatch;
+                allBatches.push(newBatch);
+            }
+            activeBatches[key].transactions.push({ id: transaction.id, date: transaction.date, type: transaction.transactionType, amount: parseFloat(transaction.amount || 0), expiryDate: transaction.expiry_date, redeemedAmount: parseFloat(transaction.redeemedAmount || 0), cycleType: transaction.cycleType, redeemType: transaction.redeemType || '' });
+            activeBatches[key].totalBuyAmount += parseFloat(transaction.amount || 0);
+            activeBatches[key].totalRedeemAmount += parseFloat(transaction.redeemedAmount || 0);
+            activeBatches[key].currentAmount = activeBatches[key].totalBuyAmount - activeBatches[key].totalRedeemAmount;
         } else if (transaction.transactionType === 'redeem') {
             const buyTransaction = wealths.find(t => t.id === transaction.buyTransactionId);
             if (buyTransaction) {
                 let key;
-                if (buyTransaction.type === '活期') {
+                if (buyTransaction.type === '活期' || buyTransaction.type === '每日开放') {
                     key = `${buyTransaction.platform}_${buyTransaction.name}_${buyTransaction.type}`;
-                } else if (buyTransaction.type === '周期') {
+                } else if (buyTransaction.type === '周期' || buyTransaction.type === '最短持有期' || buyTransaction.type === '定期开放式' || buyTransaction.type === '固定天数循环' || buyTransaction.type === '结构性周期') {
                     key = `${buyTransaction.platform}_${buyTransaction.name}_${buyTransaction.type}_${buyTransaction.cycleType || '未知'}`;
                 } else {
                     key = `${buyTransaction.id}_${buyTransaction.date}`;
@@ -1984,26 +1996,26 @@ async function initOverview() {
         initCharts();
     }, 500);
     
-    // 添加卡片点击事件监听器，实现点击跳转到对应选项卡
+    // 添加卡片点击事件监听器，实现点击跳转到对应页面
     const metricCards = document.querySelectorAll('.metric-card');
     metricCards.forEach(card => {
         card.addEventListener('click', function() {
-            // 根据卡片类型获取对应的选项卡名称
-            let tabName;
+            // 根据卡片类型获取对应的页面路径
+            let pagePath;
             if (this.classList.contains('deposit-card')) {
-                tabName = 'deposit';
+                pagePath = '/deposit';
             } else if (this.classList.contains('fund-card')) {
-                tabName = 'fund';
+                pagePath = '/fund';
             } else if (this.classList.contains('wealth-card')) {
-                tabName = 'wealth';
+                pagePath = '/wealth';
             } else if (this.classList.contains('stock-card')) {
-                tabName = 'stock';
+                pagePath = '/stock';
             } else if (this.classList.contains('other-card')) {
-                tabName = 'other';
+                pagePath = '/other';
             }
-            // 调用switchTab函数跳转到对应的选项卡
-            if (tabName) {
-                switchTab(tabName);
+            // 导航到对应页面
+            if (pagePath) {
+                window.location.href = pagePath;
             }
         });
         // 添加指针样式，提示卡片可点击

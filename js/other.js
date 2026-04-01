@@ -19,11 +19,9 @@ async function initOther() {
         btn.addEventListener('click', () => handleOtherSort(btn));
     });
     // 设置默认日期
-    const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0].replace(/-/g, '');
     const otherDateInput = document.getElementById('otherDate');
     if (otherDateInput) {
-        otherDateInput.value = formattedDate;
+        otherDateInput.value = getTodayLocalDate();
     }
     
     try {

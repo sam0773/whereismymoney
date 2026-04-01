@@ -443,9 +443,7 @@ async function handleWealthSubmit(e) {
             handleWealthTypeChange();
             
             // 设置默认日期为今天
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0].replace(/-/g, '');
-            document.getElementById('wealthDate').value = formattedDate;
+            document.getElementById('wealthDate').value = getTodayLocalDate();
             
             alert('理财添加成功！');
         }
@@ -1489,6 +1487,14 @@ function showYieldCalculationWealthModal(wealth) {
             justify-content: center;
             align-items: center;
         `;
+        
+        // 阻止modal-content上的事件冒泡，防止手机端触摸事件导致弹窗关闭
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.addEventListener('click', (e) => e.stopPropagation());
+            modalContent.addEventListener('touchstart', (e) => e.stopPropagation());
+            modalContent.addEventListener('touchend', (e) => e.stopPropagation());
+        }
     }
     
     // 重置内容
@@ -1506,7 +1512,8 @@ function showYieldCalculationWealthModal(wealth) {
         
         // 计算按钮事件
         const handleCalculate = (e) => {
-            e.stopPropagation(); // 阻止事件冒泡，防止模态框关闭
+            e.preventDefault();
+            e.stopPropagation();
             
             const calculationAmount = parseFloat(document.getElementById('calculationAmount').value);
             const resultEl = document.getElementById('yieldResult');
@@ -2464,9 +2471,7 @@ function bindWealthEvents() {
     // 设置购买日期默认值为当日日期
     const wealthDateInput = document.getElementById('wealthDate');
     if (wealthDateInput) {
-        const today = new Date();
-        const formattedDate = today.toISOString().split('T')[0].replace(/-/g, '');
-        wealthDateInput.value = formattedDate;
+        wealthDateInput.value = getTodayLocalDate();
     }
     
     // 导出数据按钮事件
