@@ -1,0 +1,235 @@
+            <h2>其它资产</h2>
+            
+            <!-- 其它资产汇总显示 -->
+            <div class="summary-container" id="otherSummaryContainer">
+                <div class="summary-header">
+                    <h3>其它资产汇总信息</h3>
+                    <button id="toggleOtherSummary" class="btn btn-small btn-secondary">隐藏</button>
+                </div>
+                <div id="otherSummaryContent">
+                    <!-- 汇总数据 -->
+                    <div class="summary-row total-row">
+                        <span class="summary-label">当前其它持有总资产:</span>
+                        <span class="summary-value" id="totalOtherAssets">¥0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">持有中资产数量:</span>
+                        <span class="summary-value" id="activeOtherCount">0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">历史记录数量:</span>
+                        <span class="summary-value" id="historyOtherCount">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加其它资产表单 -->
+            <div class="form-container" id="addOtherContainer">
+                <div class="section-header">
+                    <h3>添加其它资产</h3>
+                    <button id="toggleAddOther" class="btn btn-small btn-secondary">隐藏</button>
+                </div>
+                <div id="addOtherContent">
+                    <form id="otherForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="otherType"><span class="required">*</span>投资类型:</label>
+                                <div class="input-with-datalist">
+                                    <input type="text" id="otherType" list="otherTypeOptions" required placeholder="输入投资类型">
+                                    <datalist id="otherTypeOptions">
+                                        <option value="债券">
+                                        <option value="贵金属">
+                                        <option value="可转债">
+                                        <option value="不动产">
+                                        <option value="保险类理财">
+                                        <option value="私募类产品">
+                                    </datalist>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="otherName"><span class="required">*</span>投资名称:</label>
+                                <div class="input-with-datalist">
+                                    <input type="text" id="otherName" list="otherNameOptions" required placeholder="输入投资名称">
+                                    <datalist id="otherNameOptions"></datalist>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="otherAmount"><span class="required">*</span>投资金额:</label>
+                                <input type="number" id="otherAmount" step="0.01" required placeholder="输入投资金额">
+                            </div>
+                            <div class="form-group">
+                                <label for="otherDate"><span class="required">*</span>日期:</label>
+                                <input type="text" id="otherDate" placeholder="格式：YYYY-MM-DD 或 YYYYMMDD" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="otherPlatform"><span class="required">*</span>交易平台:</label>
+                                <div class="input-with-datalist">
+                                    <input type="text" id="otherPlatform" list="otherPlatformOptions" required placeholder="输入交易平台">
+                                    <datalist id="otherPlatformOptions"></datalist>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="otherFlexibility">资产灵活性:</label>
+                                <input type="text" id="otherFlexibility" placeholder="输入资产灵活性">
+                            </div>
+                            <div class="form-group">
+                                <label for="otherRemarks">备注:</label>
+                                <input type="text" id="otherRemarks" placeholder="输入备注">
+                            </div>
+                            <div class="form-group" style="display: flex; justify-content: flex-end; align-items: flex-end;">
+                                <button type="submit" class="btn btn-primary">添加资产</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- 其它资产列表 -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>其它资产</h3>
+                    <div class="search-container">
+                        <input type="text" id="otherSearch" placeholder="搜索资产记录..." class="search-input">
+                    </div>
+                    <button id="exportOtherData" class="btn btn-small btn-primary">导出数据</button>
+                </div>
+                <table id="otherTable" class="filter-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="header-content">
+                                    <span>投资类型</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="type" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="type" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>投资名称</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="name" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="name" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>交易平台</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="platform" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="platform" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>资产灵活性</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="flexibility" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="flexibility" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>投资金额</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="amount" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="amount" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>日期</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="date" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="date" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>备注</th>
+                            <th>详情</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="otherTableBody">
+                        <!-- 数据将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 历史记录列表 -->
+            <div class="table-container" style="margin-top: 20px;">
+                <h3>历史记录</h3>
+                <table id="otherHistoryTable" class="filter-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="header-content">
+                                    <span>投资类型</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="type" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="type" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>投资名称</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="name" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="name" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>交易平台</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="platform" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="platform" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>总投资金额</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="totalBuyAmount" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="totalBuyAmount" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>总赎回金额</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="totalRedeemAmount" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="totalRedeemAmount" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>收益率</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="yieldRate" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="yieldRate" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>备注</th>
+                            <th>详情</th>
+                        </tr>
+                    </thead>
+                    <tbody id="otherHistoryTableBody">
+                        <!-- 数据将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>

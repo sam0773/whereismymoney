@@ -1,0 +1,92 @@
+            <h2>财富总览</h2>
+            
+            <!-- 顶部横幅区：资产总额 + 资产构成饼图 -->
+            <div class="banner-section">
+                <div class="total-wealth-display">
+                    <h3>我的财富</h3>
+                    <div class="total-wealth-container">
+                        <div id="totalWealthDisplay" class="total-wealth-value">¥0.00</div>
+                        <button id="toggleAmounts" class="toggle-amounts-btn">👁️</button>
+                    </div>
+                    <div class="wealth-desc">仅统计本金</div>
+                </div>
+                <div class="pie-charts-container">
+                    <div class="pie-chart-container">
+                        <h4>资产构成</h4>
+                        <div id="assetCompositionChart" style="width: 100%; height: 400px;"></div>
+                    </div>
+                    <div class="pie-chart-container">
+                        <h4>资产分布</h4>
+                        <div id="assetDistributionChart" style="width: 100%; height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 中部指标区：关键指标卡片 + 资产趋势图 -->
+            <div class="metrics-section">
+                <div class="metrics-cards">
+                    <div class="metric-card deposit-card">
+                        <div class="metric-icon">🏦</div>
+                        <div class="metric-title">定期存款</div>
+                        <div class="metric-value" id="metricDeposits">¥0.00</div>
+                    </div>
+                    <div class="metric-card fund-card">
+                        <div class="metric-icon">📈</div>
+                        <div class="metric-title">基金</div>
+                        <div class="metric-value" id="metricFunds">¥0.00</div>
+                    </div>
+                    <div class="metric-card wealth-card">
+                        <div class="metric-icon">💹</div>
+                        <div class="metric-title">理财</div>
+                        <div class="metric-value" id="metricWealth">¥0.00</div>
+                    </div>
+                    <div class="metric-card stock-card">
+                        <div class="metric-icon">📊</div>
+                        <div class="metric-title">证券</div>
+                        <div class="metric-value" id="metricStocks">¥0.00</div>
+                    </div>
+                    <div class="metric-card other-card">
+                        <div class="metric-icon">💰</div>
+                        <div class="metric-title">其它</div>
+                        <div class="metric-value" id="metricOther">¥0.00</div>
+                    </div>
+                </div>
+                <div class="trend-chart-container">
+                    <div class="chart-header">
+                        <h3>资产趋势图</h3>
+                        <div class="interval-selector">
+                            <label for="trendInterval">时间间隔：</label>
+                            <select id="trendInterval">
+                            <option value="30">最近30天</option>
+                            <option value="90">最近90天</option>
+                            <option value="180">最近6个月</option>
+                            <option value="365" selected>最近1年</option>
+                        </select>
+                        </div>
+                    </div>
+                    <div id="assetTrendChart" style="height: 300px;"></div>
+                </div>
+            </div>
+            
+            <!-- 下部功能区：最近动态 + 更多功能 -->
+            <div class="function-section">
+                <div class="recent-activities">
+                    <h3><span class="recent-activities-icon">📝</span> 最近动态</h3>
+                    <div class="activity-list" id="activityList">
+                        <div class="activity-item">
+                            <div class="activity-content">
+                                <div class="activity-text">暂无动态</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="quick-actions">
+                    <h3>更多功能</h3>
+                    <div class="action-buttons">
+                        <button class="action-btn" id="quickAddDeposit">银行账户</button>
+                        <a href="https://fund.eastmoney.com/" target="_blank" class="action-btn fund-btn">天天基金网</a>
+                        <a href="https://www.jrcpcx.cn/" target="_blank" class="action-btn wealth-btn">金融产品查询平台</a>
+                        <a href="https://www.chinamoney.com.cn/" target="_blank" class="action-btn stock-btn">中国货币网</a>
+                    </div>
+                </div>
+            </div>
