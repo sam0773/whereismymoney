@@ -1,0 +1,252 @@
+            <h2>理财</h2>
+            
+            <!-- 理财汇总显示 -->
+            <div class="summary-container" id="wealthSummaryContainer">
+                <div class="summary-header">
+                    <h3>理财汇总信息</h3>
+                    <button id="toggleWealthSummary" class="btn btn-small btn-secondary">隐藏</button>
+                </div>
+                <div id="wealthSummaryContent">
+                    <!-- 汇总数据 -->
+                    <div class="summary-row total-row">
+                        <span class="summary-label">当前购买理财总本金:</span>
+                        <span class="summary-value" id="totalWealthPrincipal">¥0.00</span>
+                    </div>
+                    <!-- 平台汇总数据 -->
+                    <div id="wealthPlatformSummary" class="platform-summary">
+                        <!-- 平台汇总数据将通过JavaScript动态生成 -->
+                    </div>
+                    <div class="summary-row total-row interest-row">
+                        <span class="summary-label">历史理财收益:</span>
+                        <span class="summary-value" id="totalWealthInterest">¥0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加理财表单 -->
+            <div class="form-container" id="addWealthContainer">
+                <div class="section-header">
+                    <h3>添加理财</h3>
+                    <button id="toggleAddWealth" class="btn btn-small btn-secondary">隐藏</button>
+                </div>
+                <div id="addWealthContent">
+                    <form id="wealthForm">
+                    <!-- 第一行：购买平台、产品名称、购买金额、购买日期 -->
+                    <div class="form-row four-columns">
+                        <div class="form-group">
+                            <label for="wealthPlatform">购买平台:</label>
+                            <input type="text" id="wealthPlatform" list="wealthPlatformOptions" required placeholder="输入或选择已有列表">
+                            <datalist id="wealthPlatformOptions">
+                                <!-- 购买平台选项将通过JavaScript动态添加 -->
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="wealthName">产品名称:</label>
+                            <input type="text" id="wealthName" list="wealthNameOptions" required placeholder="输入或选择已有列表">
+                            <datalist id="wealthNameOptions">
+                                <!-- 产品名称选项将通过JavaScript动态添加 -->
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="wealthAmount">购买金额:</label>
+                            <input type="number" id="wealthAmount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="wealthDate">购买日期:</label>
+                            <input type="text" id="wealthDate" placeholder="格式：YYYY-MM-DD 或 YYYYMMDD" required>
+                        </div>
+                    </div>
+                    
+                    <!-- 第二行：产品类型、风险等级、到期日期/周期类型、添加理财按钮 -->
+                    <div class="form-row four-columns">
+                        <div class="form-group">
+                            <label for="wealthType">产品类型:</label>
+                            <select id="wealthType" required>
+                                <option value="每日开放">每日开放</option>
+                                <option value="最短持有期">最短持有期</option>
+                                <option value="定期开放式">定期开放式</option>
+                                <option value="固定天数循环">固定天数循环</option>
+                                <option value="结构性周期">结构性周期</option>
+                                <option value="封闭式">封闭式</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="wealthRiskLevel">风险等级:</label>
+                            <select id="wealthRiskLevel" required>
+                                <option value="">请选择</option>
+                                <option value="R1低风险">R1低风险</option>
+                                <option value="R2中低风险">R2中低风险</option>
+                                <option value="R3中等风险">R3中等风险</option>
+                                <option value="R4中高风险">R4中高风险</option>
+                                <option value="R5高风险">R5高风险</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <div id="expiryDateContainer">
+                                <label for="wealthExpiryDate">到期日期:</label>
+                                <input type="text" id="wealthExpiryDate" placeholder="格式：YYYYMMDD">
+                            </div>
+                        </div>
+                        <div class="form-group" style="display: flex; justify-content: flex-end; align-items: flex-end;">
+                            <button type="submit" class="btn btn-primary">添加理财</button>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+            </div>    
+            <!-- 当前理财 -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h3>当前理财</h3>
+                    <div class="search-container">
+                        <input type="text" id="wealthSearch" placeholder="搜索理财记录..." class="search-input">
+                    </div>
+                    <button id="exportWealthData" class="btn btn-small btn-primary">导出数据</button>
+                </div>
+                <div class="table-container">
+                    <table id="currentFundsTable" class="fund-table filter-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="header-content">
+                                        <span>购买平台</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="platform" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="platform" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>产品名称</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="name" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="name" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>产品类型</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="type" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="type" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>风险等级</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="riskLevel" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="riskLevel" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>本金金额</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="currentAmount" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="currentAmount" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>到期日期</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="expiryDate" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="expiryDate" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>交易详情</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="currentFundsBody">
+                            <!-- 数据将通过JavaScript动态添加 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 历史理财 -->
+            <div class="section-container">
+                <h3>历史理财</h3>
+                
+                <table id="historyFundsTable" class="fund-table filter-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="header-content">
+                                    <span>购买平台</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="platform" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="platform" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>产品名称</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="name" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="name" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>产品类型</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="type" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="type" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                    <div class="header-content">
+                                        <span>风险等级</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="riskLevel" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="riskLevel" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>总购买金额</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="totalBuyAmount" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="totalBuyAmount" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>总赎回金额</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="totalRedeemAmount" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="totalRedeemAmount" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="header-content">
+                                    <span>年化收益率</span>
+                                    <div class="sort-container">
+                                        <button class="sort-btn" data-column="yieldRate" data-order="asc">▲</button>
+                                        <button class="sort-btn" data-column="yieldRate" data-order="desc">▼</button>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyFundsBody">
+                        <!-- 数据将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>

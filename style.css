@@ -1,0 +1,1817 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-top: 20px;
+    display: none;
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+h2 {
+    color: #34495e;
+    margin-bottom: 20px;
+    font-size: 24px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+h3 {
+    color: #34495e;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+/* 选项卡样式 */
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    color: #666;
+}
+
+.tab-btn:hover {
+    color: #3498db;
+}
+
+.tab-btn.active {
+    color: #3498db;
+    border-bottom-color: #3498db;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none;
+    min-height: 500px;
+    background-color: #fff;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 表单样式 */
+.form-container {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid #e0e0e0;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+/* 每行4列样式 */
+.form-row.four-columns {
+    justify-content: space-between;
+}
+
+.form-row.four-columns .form-group {
+    flex: 0 0 calc(25% - 15px);
+    min-width: 180px;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .form-row.four-columns .form-group {
+        flex: 0 0 calc(33.333% - 14px);
+    }
+}
+
+@media (max-width: 900px) {
+    .form-row.four-columns .form-group {
+        flex: 0 0 calc(50% - 10px);
+    }
+}
+
+@media (max-width: 600px) {
+    .form-row.four-columns .form-group {
+        flex: 0 0 100%;
+    }
+}
+
+.form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+    font-size: 14px;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+/* 按钮样式 */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-secondary {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #7f8c8d;
+}
+
+.btn-small {
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.btn-calendar {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-calendar:hover {
+    background-color: #45a049;
+}
+
+.btn-delete {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+.btn-confirm {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-confirm:hover {
+    background-color: #2980b9;
+}
+
+.btn-confirmed {
+    background-color: #95a5a6;
+    color: white;
+    cursor: not-allowed;
+}
+
+/* 新按钮样式 */
+.btn-edit {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-edit:hover {
+    background-color: #45a049;
+}
+
+.btn-buy {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-buy:hover {
+    background-color: #45a049;
+}
+
+.btn-bank-to-stock {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-bank-to-stock:hover {
+    background-color: #45a049;
+}
+
+.btn-stock-to-bank {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-stock-to-bank:hover {
+    background-color: #2980b9;
+}
+
+.btn-partial-redemption {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-partial-redemption:hover {
+    background-color: #2980b9;
+}
+
+/* 银证转账样式 */
+.transfer-in {
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.transfer-out {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    width: 80%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-body {
+    padding: 20px 30px;
+    text-align: center;
+}
+
+.modal-title {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 18px;
+    font-weight: normal;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #2980b9;
+}
+
+.modal-body h5 {
+    margin: 15px 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: normal;
+    text-align: left;
+}
+
+.modal-actions {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.btn-close {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.btn-close:hover {
+    background-color: #7f8c8d;
+}
+
+/* 详情表格样式 */
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.detail-table th,
+.detail-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.detail-table th {
+    background-color: #2980b9;
+    color: white;
+    font-weight: normal;
+    text-align: center;
+}
+
+.detail-table td {
+    text-align: center;
+}
+
+/* 筛选容器 */
+.filter-container {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid #e0e0e0;
+}
+
+.filter-row {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group label {
+    font-weight: bold;
+    color: #555;
+    font-size: 14px;
+}
+
+.filter-group select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* 表格样式 */
+.table-container {
+    overflow-x: auto;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* 确保搜索框在表格头部居中 */
+.table-header .search-container {
+    margin: 0 auto;
+    flex: 1;
+    max-width: 400px;
+}
+
+/* 当只有标题和搜索框时，确保搜索框居中 */
+.table-header h3 + .search-container:last-child {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.search-container {
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+th {
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+    transition: background-color 0.2s ease;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+/* 基金代码链接样式 - 保持与普通文本一致 */
+.fund-code-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.fund-code-link:hover {
+    color: inherit;
+    text-decoration: underline;
+}
+
+/* 金额和数字样式 */
+.amount {
+    font-weight: bold;
+    color: #27ae60;
+    text-align: left;
+}
+
+.rate {
+    color: #e67e22;
+    font-weight: bold;
+    text-align: left;
+}
+
+.expiry {
+    color: #e74c3c;
+    font-weight: bold;
+    text-align: left;
+}
+
+/* 剩余天数≤30天显示为橘色 */
+.filter-table td:nth-child(7).expiry {
+    color: #f39c12 !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+        margin-top: 10px;
+    }
+    
+    h1 {
+        font-size: 24px;
+    }
+    
+    h2 {
+        font-size: 20px;
+    }
+    
+    .form-row, .filter-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .form-group, .filter-group {
+        width: 100%;
+    }
+    
+    .tabs {
+        flex-direction: column;
+    }
+    
+    .tab-btn {
+        text-align: left;
+        border-bottom: none;
+        border-left: 3px solid transparent;
+    }
+    
+    .tab-btn.active {
+        border-bottom-color: transparent;
+        border-left-color: #3498db;
+    }
+    
+    table {
+        font-size: 14px;
+    }
+    
+    th, td {
+        padding: 8px 10px;
+    }
+    
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-content.active {
+    animation: fadeIn 0.3s ease;
+}
+
+/* 导入区域样式 */
+.import-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* 存款汇总样式 */
+.summary-container {
+    background-color: #e8f4f8;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid #b3d9e6;
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.summary-header h3 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.summary-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.summary-row.total-row {
+    background-color: rgba(52, 152, 219, 0.1);
+    font-weight: bold;
+    border-left: 4px solid #3498db;
+}
+
+/* 已到手利息行样式 */
+.summary-row.interest-row {
+    background-color: rgba(46, 204, 113, 0.1);
+    font-weight: bold;
+    border-left: 4px solid #2ecc71;
+    margin-top: 10px;
+}
+
+/* 近30天到期行样式 - 黄色 */
+.summary-row.interest-row.thirty-days-expiry {
+    background-color: rgba(241, 196, 15, 0.1);
+    border-left: 4px solid #f1c40f;
+}
+
+.thirty-days-expiry .summary-value {
+    color: #f39c12;
+}
+
+/* 普通利息显示为红色 */
+.interest-row:not(.thirty-days-expiry) .summary-value {
+    color: #e74c3c;
+}
+
+.summary-label {
+    color: #555;
+}
+
+.summary-value {
+    font-weight: bold;
+    color: #27ae60;
+}
+
+/* 利息、总赎回金额、总转出金额显示为红色 */
+.interest-row:not(.thirty-days-expiry) .summary-value,
+.total-redemption .summary-value,
+.total-transfer-out .summary-value,
+.transfer-out {
+    color: #e74c3c;
+}
+
+/* 确保近30天到期数据显示为橘色，提高优先级 */
+.summary-row.interest-row.thirty-days-expiry .summary-value {
+    color: #f39c12 !important;
+}
+
+/* 存期输入组合样式 */
+.period-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.period-input input {
+    flex: 3;
+}
+
+.period-input select {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+/* 模块标题样式/* 表头样式 */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* 确保表格头部的搜索框样式正确 */
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* 确保搜索框在所有表格头部都正确显示 */
+.table-header .search-container {
+    flex: 1;
+    max-width: 400px;
+}
+
+/* 确保表单标题和隐藏按钮保持两端对齐 */
+.form-container .section-header {
+    justify-content: space-between;
+}
+
+/* 移除之前的居中样式，确保证券页面标题不居中 */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* 确保搜索框在所有容器中都正确显示 */
+.search-container {
+    flex: 1;
+    max-width: 400px;
+}
+
+.section-header h3 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+/* 部分容器样式 */
+.section-container {
+    overflow-x: auto;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+/* 表格区域样式 */
+.table-section {
+    margin-bottom: 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+/* 表格头部样式 */
+.table-section .table-header {
+    background-color: #fff;
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* 表格容器样式 */
+.table-section .table-container {
+    overflow-x: auto;
+}
+
+/* 子部分容器样式 */
+.subsection-container {
+    overflow-x: auto;
+}
+
+/* 表头样式 */
+.filter-table th {
+    padding: 12px 15px;
+    text-align: left;
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+/* 表头内容样式 */
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 排序按钮容器 */
+.sort-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+/* 排序按钮样式 */
+.sort-btn {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    font-size: 8px;
+    padding: 0;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 18px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sort-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: white;
+}
+
+.sort-btn:active {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* 确保表格列宽正确计算 */
+.filter-table {
+    table-layout: auto;
+    width: 100%;
+}
+
+.filter-table th,
+.filter-table td {
+    width: auto;
+    white-space: nowrap;
+    min-width: 80px;
+}
+
+/* 表格内容样式 */
+.filter-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+}
+
+/* 金额列左对齐，统一列表样式 */
+.filter-table td.amount {
+    text-align: left;
+}
+
+.filter-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* 高亮行样式 */
+.highlight-row {
+    background-color: #fff3cd !important;
+    animation: highlight 10s ease-in-out;
+}
+
+/* 今天到期的行样式 - 浅绿色高亮 */
+.today-expired {
+    background-color: #d4edda !important;
+}
+
+/* 高亮动画 */
+@keyframes highlight {
+    0% {
+        background-color: #fff3cd;
+    }
+    80% {
+        background-color: #fff3cd;
+    }
+    100% {
+        background-color: white;
+    }
+}
+
+/* 调整表单输入框大小和样式 */
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    flex: 1;
+    min-width: 180px;
+    max-width: calc(33.333% - 14px); /* 3个字段每行，减去间距 */
+}
+
+/* 响应式调整 */
+@media (max-width: 900px) {
+    .form-group {
+        max-width: calc(50% - 10px); /* 小屏幕下2个字段每行 */
+    }
+}
+
+@media (max-width: 600px) {
+    .form-group {
+        max-width: 100%; /* 超小屏幕下1个字段每行 */
+    }
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+    font-size: 14px;
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 90%;
+    max-width: 500px;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2c3e50;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+/* 用户信息样式 */
+.user-info {
+    display: none;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 15px;
+    padding: 10px 0;
+}
+
+#currentUser {
+    font-weight: bold;
+    color: #3498db;
+}
+
+/* 表单组间距调整 */
+.modal .form-group {
+    margin-bottom: 15px;
+}
+
+.modal .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+    font-size: 14px;
+}
+
+.modal .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.modal .form-group input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+/* 用户设置选项卡样式 */
+.settings-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.settings-tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    color: #666;
+}
+
+.settings-tab-btn:hover {
+    color: #3498db;
+}
+
+.settings-tab-btn.active {
+    color: #3498db;
+    border-bottom-color: #3498db;
+    font-weight: bold;
+}
+
+/* 设置选项卡内容样式 */
+.settings-tab-content {
+    display: none;
+}
+
+.settings-tab-content.active {
+    display: block;
+}
+
+/* 用户信息内容样式 */
+#userInfoContent {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+}
+
+/* 用户信息表格样式 */
+.user-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.user-info-table th,
+.user-info-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.user-info-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #666;
+    font-size: 14px;
+    width: 150px;
+}
+
+.user-info-table td {
+    color: #333;
+    font-size: 14px;
+}
+
+.user-info-table tr:last-child th,
+.user-info-table tr:last-child td {
+    border-bottom: none;
+}
+
+.user-info-table tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+/* 模态框内容调整 */
+.modal-content {
+    width: 90%;
+    max-width: 500px;
+}
+
+/* 设置表单间距 */
+.settings-tab-content .form-group {
+    margin-bottom: 15px;
+}
+
+/* 设置按钮间距 */
+.settings-tab-content .form-actions {
+    margin-top: 20px;
+}
+
+/* 用户列表表格样式 */
+.settings-tab-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.settings-tab-content th, .settings-tab-content td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.settings-tab-content th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.settings-tab-content tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.settings-tab-content tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* 删除数据选项卡样式 */
+.delete-data-content {
+    padding: 20px;
+}
+
+.delete-warning {
+    color: #e74c3c;
+    font-weight: bold;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: rgba(231, 76, 60, 0.1);
+    border-radius: 4px;
+    border-left: 4px solid #e74c3c;
+}
+
+.delete-section {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+}
+
+.delete-section h4 {
+    margin-bottom: 10px;
+    color: #34495e;
+}
+
+.delete-section p {
+    margin-bottom: 15px;
+    color: #555;
+}
+
+/* 危险按钮样式 */
+.btn-danger {
+    background-color: #e74c3c;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.btn-danger:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* 确保btn-danger与btn-small一起使用时保持一致的大小 */
+.btn-small.btn-danger {
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* 基本饼图样式，确保在所有设备上都能显示 */
+.pie-chart-container {
+    width: 100%;
+    /* 确保饼图容器有固定的宽高比，根据宽度等比例自适应高度 */
+    aspect-ratio: 1/1;
+    max-height: 400px;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pie-chart-container h4 {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+#assetCompositionChart,
+#assetDistributionChart {
+    width: 100% !important;
+    height: calc(100% - 30px) !important;
+    touch-action: none;
+    pointer-events: auto;
+}
+
+/* 基金平台汇总样式 */
+.platform-summary-container {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.platform-summary-container h4 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 16px;
+}
+
+.platform-summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.platform-summary-header {
+    display: flex;
+    background-color: #f0f8ff;
+    font-weight: bold;
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.platform-summary-row {
+    display: flex;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.platform-summary-row:hover {
+    background-color: #f9f9f9;
+}
+
+.platform-summary-row:last-child {
+    border-bottom: none;
+}
+
+.platform-name {
+    flex: 2;
+    color: #333;
+    font-weight: 500;
+}
+
+.platform-count {
+    flex: 1;
+    text-align: center;
+    color: #666;
+}
+
+.platform-amount {
+    flex: 1;
+    text-align: left;
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.platform-percentage {
+    flex: 1;
+    text-align: left;
+    color: #e67e22;
+    font-weight: bold;
+}
+
+/* 总览页面样式 */
+
+/* 顶部横幅区 */
+.banner-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.total-wealth-display {
+    flex: 1;
+    text-align: center;
+}
+
+.total-wealth-display h3 {
+    margin-bottom: 10px;
+    color: #666;
+    font-size: 18px;
+}
+
+.total-wealth-value {
+    font-size: 48px;
+    font-weight: bold;
+    color: #e74c3c;
+    margin-bottom: 5px;
+}
+
+.wealth-desc {
+    color: #999;
+    font-size: 14px;
+    font-size: 18px;
+}
+
+.total-wealth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.total-wealth-value {
+    font-size: 48px;
+    font-weight: bold;
+    color: #e74c3c;
+    margin-bottom: 5px;
+}
+
+.wealth-desc {
+    color: #999;
+    font-size: 14px;
+}
+
+.toggle-amounts-btn {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 确保按钮与金额垂直对齐 */
+    align-self: center;
+    background-color: transparent;
+    color: #666;
+}
+
+/* 隐藏状态下按钮顶端对齐 */
+.toggle-amounts-btn.hide-state {
+    align-self: flex-start;
+    margin-top: 8px;
+}
+
+.toggle-amounts-btn:hover {
+    background-color: #f5f5f5;
+    border-color: #ccc;
+    transform: scale(1.05);
+}
+
+.toggle-amounts-btn.active {
+    background-color: transparent;
+    color: #666;
+    border-color: #ddd;
+}
+
+/* 调整总财富容器的样式，确保图标与*垂直对齐 */
+.total-wealth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.total-wealth-value {
+    font-size: 48px;
+    font-weight: bold;
+    color: #e74c3c;
+    margin-bottom: 5px;
+    line-height: 1.2;
+    display: inline-flex;
+    align-items: center;
+}
+
+.toggle-amounts-btn {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 确保按钮与金额垂直对齐 */
+    align-self: center;
+    background-color: transparent;
+    color: #666;
+}
+
+.pie-charts-container {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+}
+
+.pie-chart-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.pie-chart-container h4 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+    font-size: 18px;
+    text-align: center;
+}
+
+/* 中部指标区 */
+.metrics-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.metrics-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.metric-card {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card.deposit-card {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-left: 4px solid #3498db;
+}
+
+.metric-card.fund-card {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-left: 4px solid #2ecc71;
+}
+
+.metric-card.wealth-card {
+    background-color: rgba(241, 196, 15, 0.1);
+    border-left: 4px solid #f1c40f;
+}
+
+.metric-card.stock-card {
+    background-color: rgba(231, 76, 60, 0.1);
+    border-left: 4px solid #e74c3c;
+}
+
+.metric-card.other-card {
+    background-color: rgba(0, 188, 212, 0.1);
+    border-left: 4px solid #00bcd4;
+}
+
+.metric-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.metric-title {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.trend-chart-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.trend-chart-container h3 {
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center;
+}
+
+/* 下部功能区 */
+.function-section {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.quick-actions, .recent-activities {
+    flex: 1;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.quick-actions h3, .recent-activities h3 {
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.recent-activities-icon {
+    font-size: 24px;
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.action-btn {
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn {
+    text-decoration: none;
+}
+
+#quickAddDeposit {
+    background-color: #3498db;
+}
+
+.action-btn.fund-btn {
+    background-color: #2ecc71;
+}
+
+.action-btn.wealth-btn {
+    background-color: #f1c40f;
+}
+
+.action-btn.stock-btn {
+    background-color: #e74c3c;
+}
+
+.activity-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    font-size: 24px;
+    margin-top: 2px;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-text {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.activity-time {
+    font-size: 12px;
+    color: #999;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .banner-section {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .pie-charts-container {
+        flex-direction: column;
+        width: 100%;
+        padding: 0 10px;
+    }
+    
+    .pie-chart-container {
+        width: 100%;
+        /* 确保饼图容器有固定的宽高比，根据宽度等比例自适应高度 */
+        aspect-ratio: 1/1;
+        max-height: 400px;
+        min-height: 250px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .pie-chart-container h4 {
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+    
+    #assetCompositionChart,
+    #assetDistributionChart {
+        width: 100% !important;
+        height: calc(100% - 30px) !important;
+        touch-action: none;
+        pointer-events: auto;
+        /* 确保图表容器填满父容器 */
+        max-width: none;
+    }
+    
+    #assetTrendChart {
+        touch-action: none;
+        pointer-events: auto;
+    }
+    
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .interval-selector {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .interval-selector select {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+        font-size: 14px;
+    }
+}
+
+/* 针对手机设备的特殊样式 */
+@media (max-width: 768px) {
+    .pie-chart-container {
+        width: 100% !important;
+        /* 恢复饼图容器大小 */
+        max-height: 400px;
+        min-height: 250px;
+        margin-bottom: 20px;
+    }
+    
+    #assetCompositionChart,
+    #assetDistributionChart {
+        width: 100% !important;
+        height: calc(100% - 30px) !important;
+        max-width: none !important;
+        /* 优化触摸体验，允许垂直滑动 */
+        touch-action: pan-y;
+    }
+    
+    /* 确保横幅区域的内边距合适 */
+    .banner-section {
+        padding: 20px 10px;
+    }
+    
+    /* 调整总财富显示，确保不占用过多空间 */
+    .total-wealth-display {
+        margin-bottom: 20px;
+    }
+    
+    .total-wealth-value {
+        font-size: 36px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .function-section {
+        flex-direction: column;
+    }
+    
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .metrics-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .total-wealth-value {
+        font-size: 36px;
+        line-height: 1.2;
+    }
+    
+    .toggle-amounts-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
+    
+    .total-wealth-container {
+        gap: 8px;
+    }
+}
+
+/* 加载转圈动画 */
+.loading-spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #007bff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

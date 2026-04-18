@@ -1,0 +1,284 @@
+            <h2>基金</h2>
+            
+            <!-- 基金汇总显示 -->
+            <div class="summary-container" id="fundSummaryContainer">
+                <div class="summary-header">
+                    <h3>基金汇总信息</h3>
+                    <button id="toggleFundSummary" class="btn btn-small btn-secondary">隐藏</button>
+                </div>
+                <div id="fundSummaryContent">
+                    <!-- 汇总数据 -->
+                    <div class="summary-row total-row">
+                        <span class="summary-label">当前购买基金总本金:</span>
+                        <span class="summary-value" id="totalFundPrincipal">¥0.00</span>
+                    </div>
+                    
+                    <!-- 平台汇总数据，使用和存款相同的样式 -->
+                    <div id="fundPlatformSummary"></div>
+                    
+                    <div class="summary-row total-row interest-row">
+                        <span class="summary-label">历史基金收益:</span>
+                        <span class="summary-value" id="totalFundInterest">¥0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加基金表单 -->
+            <div class="form-container" id="addFundContainer">
+                <div class="section-header">
+                    <h3>添加基金</h3>
+                    <button id="toggleAddFund" class="btn btn-small btn-secondary">隐藏</button>
+                </div>
+                <div id="addFundContent">
+                    <form id="fundForm">
+                    <!-- 第一行：基金代码、产品名称、基金类型、风险等级 -->
+                    <div class="form-row four-columns">
+                        <div class="form-group">
+                            <label for="fundCode">基金代码:</label>
+                            <div style="display: flex;">
+                                <input type="text" id="fundCode" placeholder="输入基金代码" style="flex: 1; margin-right: 8px;">
+                                <button type="button" id="queryFundBtn" class="btn btn-small btn-primary">查询</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="fundName">产品名称:</label>
+                            <input type="text" id="fundName" list="fundNameOptions" required placeholder="输入或选择已有列表">
+                            <datalist id="fundNameOptions">
+                                <!-- 产品名称选项将通过JavaScript动态添加 -->
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="fundType">基金类型:</label>
+                            <select id="fundType" required>
+                                <option value="">请选择</option>
+                                <option value="货币型">货币型</option>
+                                <option value="债券型">债券型</option>
+                                <option value="混合型">混合型</option>
+                                <option value="股票型">股票型</option>
+                                <option value="指数型">指数型</option>
+                                <option value="ETF">ETF</option>
+                                <option value="LOF">LOF</option>
+                                <option value="QDII">QDII</option>
+                                <option value="FOF">FOF</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fundRiskLevel">风险等级:</label>
+                            <select id="fundRiskLevel" required>
+                                <option value="">请选择</option>
+                                <option value="低风险">低风险</option>
+                                <option value="中低风险">中低风险</option>
+                                <option value="中风险">中风险</option>
+                                <option value="中高风险">中高风险</option>
+                                <option value="高风险">高风险</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- 第二行：运作方式、购买平台、购买金额、购买日期 -->
+                    <div class="form-row four-columns">
+                        <div class="form-group">
+                            <label for="fundCategory">运作方式:</label>
+                            <select id="fundCategory" required>
+                                <option value="">请选择</option>
+                                <option value="开放式">开放式</option>
+                                <option value="封闭式">封闭式</option>
+                                <option value="定期开放式">定期开放式</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fundPlatform">购买平台:</label>
+                            <input type="text" id="fundPlatform" list="fundPlatformOptions" required placeholder="输入或选择已有列表">
+                            <datalist id="fundPlatformOptions">
+                                <!-- 购买平台选项将通过JavaScript动态添加 -->
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="fundAmount">购买金额:</label>
+                            <input type="number" id="fundAmount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fundDate">购买日期:</label>
+                            <input type="text" id="fundDate" placeholder="格式：YYYY-MM-DD 或 YYYYMMDD" required>
+                        </div>
+                    </div>
+                    <!-- 第三行：添加基金按钮 -->
+                    <div class="form-row" style="justify-content: flex-end;">
+                        <button type="submit" class="btn btn-primary">添加基金</button>
+                    </div>
+                    </form>
+                </div>
+            </div>    
+            <!-- 当前基金 -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>当前基金</h3>
+                    <div class="search-container">
+                        <input type="text" id="fundSearch" placeholder="搜索基金记录..." class="search-input">
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button id="maintainFundListBtn" class="btn btn-small btn-secondary">基金数据维护</button>
+                        <button id="exportFundData" class="btn btn-small btn-primary">导出数据</button>
+                    </div>
+                </div>
+                <table id="fundCurrentFundsTable" class="fund-table filter-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="header-content">
+                                        <span>购买平台</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="platform" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="platform" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>基金代码</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="fundCode" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="fundCode" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>产品名称</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="name" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="name" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>运作方式</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="fundCategory" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="fundCategory" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>风险等级</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="fundRiskLevel" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="fundRiskLevel" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>本金金额</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="currentAmount" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="currentAmount" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th id="currentAmountHeader">
+                                    <div class="header-content">
+                                        <span>当前金额</span>
+                                    </div>
+                                </th>
+                                <th>交易详情</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fundCurrentFundsBody">
+                            <!-- 数据将通过JavaScript动态添加 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 历史基金 -->
+            <div class="section-container">
+                <h3>历史基金</h3>
+                
+                <div class="subsection-container">
+                    <table id="fundHistoryFundsTable" class="fund-table filter-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="header-content">
+                                        <span>购买平台</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="platform" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="platform" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>基金代码</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="fundCode" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="fundCode" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>产品名称</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="name" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="name" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>运作方式</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="fundCategory" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="fundCategory" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>风险等级</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="fundRiskLevel" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="fundRiskLevel" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>总购买金额</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="totalBuyAmount" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="totalBuyAmount" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>总赎回金额</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="totalRedeemAmount" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="totalRedeemAmount" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="header-content">
+                                        <span>年化收益率</span>
+                                        <div class="sort-container">
+                                            <button class="sort-btn" data-column="yieldRate" data-order="asc">▲</button>
+                                            <button class="sort-btn" data-column="yieldRate" data-order="desc">▼</button>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fundHistoryFundsBody">
+                            <!-- 数据将通过JavaScript动态添加 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>

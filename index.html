@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的财富</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 本地加载echarts -->
+    <script src="js/echarts.min.js"></script>
+</head>
+<body>
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal" style="display: flex; background-image: url('images/login-background.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; background-color: #f0f0f0;">
+        <div class="modal-content" style="background-color: rgba(255, 255, 255, 0.85); padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
+            <h2>登录</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">用户名:</label>
+                    <input type="text" id="username" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">密码:</label>
+                    <input type="password" id="password" required autocomplete="current-password">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">登录</button>
+                    <button type="button" id="registerBtn" class="btn btn-secondary">注册</button>
+                </div>
+                <div id="loginStatus" style="margin-top: 15px; color: red;"></div>
+            </form>
+        </div>
+    </div>
+
+    
+
+    <!-- 系统用户信息 -->
+    <div class="user-info">
+        <span id="currentUser" style="cursor: pointer; text-decoration: underline;"></span>
+        <button id="logoutBtn" class="btn btn-small btn-secondary">退出登录</button>
+    </div>
+
+    <!-- 用户设置模态框 -->
+    <div id="userSettingsModal" class="modal">
+        <div class="modal-content">
+            <h2>用户设置</h2>
+            
+            <!-- 选项卡切换 -->
+            <div class="settings-tabs">
+                <button class="settings-tab-btn active" data-tab="userInfo">用户信息</button>
+                <button class="settings-tab-btn" data-tab="changePassword">修改密码</button>
+                <button class="settings-tab-btn" data-tab="userList" id="userListTabBtn" style="display: none;">用户列表</button>
+                <button class="settings-tab-btn" data-tab="deleteData">删除数据</button>
+            </div>
+            
+            <!-- 用户信息选项卡 -->
+            <div id="userInfo" class="settings-tab-content active">
+                <div id="userInfoContent">
+                    <!-- 用户信息将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            
+            <!-- 修改密码选项卡 -->
+            <div id="changePassword" class="settings-tab-content">
+                <form id="changePasswordForm">
+                    <div class="form-group" style="display: none;">
+                        <label for="changePasswordUsername">用户名:</label>
+                        <input type="text" id="changePasswordUsername" required autocomplete="username" value="" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="oldPassword">旧密码:</label>
+                        <input type="password" id="oldPassword" required autocomplete="current-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">新密码:</label>
+                        <input type="password" id="newPassword" required autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">确认新密码:</label>
+                        <input type="password" id="confirmPassword" required autocomplete="new-password">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                    <div id="changePasswordStatus" style="margin-top: 15px; color: red;"></div>
+                </form>
+            </div>
+            
+            <!-- 用户列表选项卡 -->
+            <div id="userList" class="settings-tab-content">
+                <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f2f2f2;">
+                            <th style="border: 1px solid #ddd; padding: 8px;">序号</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">用户名</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">角色</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">创建时间</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userListContent">
+                        <!-- 用户列表将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 删除数据选项卡 -->
+            <div id="deleteData" class="settings-tab-content">
+                <div class="delete-data-content">
+                    <h3>删除数据</h3>
+                    <p class="delete-warning">警告：以下操作不可逆，请谨慎操作！</p>
+                    
+                    <div class="delete-section">
+                        <h4>定期存款数据</h4>
+                        <p>删除个人所有定期存款数据，包括未到期和已到期的存款记录。</p>
+                        <button id="deleteAllDeposits" class="btn btn-danger">删除所有定期存款数据</button>
+                    </div>
+                    
+                    <div class="delete-section">
+                        <h4>理财数据</h4>
+                        <p>删除个人所有理财数据，包括所有理财记录。</p>
+                        <button id="deleteAllFunds" class="btn btn-danger">删除所有理财数据</button>
+                    </div>
+                    
+                    <div class="delete-section" id="clearDatabaseSection" style="display: none;">
+                        <h4>清空数据库</h4>
+                        <p>删除所有用户的所有数据，包括用户信息、定期存款和理财记录。</p>
+                        <button id="clearDatabaseBtn" class="btn btn-danger">清空整个数据库</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 关闭按钮 -->
+            <div class="modal-actions" style="margin-top: 20px; text-align: center;">
+                <button id="closeSettings" class="btn btn-secondary">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>我的财富</h1>
+        
+        <!-- 选项卡切换 -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="overview">总览</button>
+            <button class="tab-btn" data-tab="deposit">定期存款</button>
+            <button class="tab-btn" data-tab="fund">基金</button>
+            <button class="tab-btn" data-tab="wealth">理财</button>
+            <button class="tab-btn" data-tab="stock">证券</button>
+            <button class="tab-btn" data-tab="other">其它投资</button>
+        </div>
+        
+        <!-- 总览 -->
+        <div id="overview" class="tab-content active"></div>
+        
+        <!-- 定期存款 -->
+        <div id="deposit" class="tab-content"></div>
+        
+        <!-- 基金 -->
+        <div id="fund" class="tab-content"></div>
+        
+        <!-- 理财 -->
+        <div id="wealth" class="tab-content"></div>
+        
+        <!-- 证券 -->
+        <div id="stock" class="tab-content"></div>
+        <!-- 其它投资 -->
+        <div id="other" class="tab-content"></div>
+    </div>
+    
+    <!-- SheetJS库 - 本地加载 -->
+    <script src="js/xlsx.full.min.js"></script>
+    <!-- 添加XLSX库加载检查 -->
+    <script>
+    // 检查XLSX库是否加载成功
+    if (typeof XLSX === 'undefined') {
+        console.warn('XLSX library not loaded, using fallback mode for Excel operations');
+        // 添加简单的全局XLSX对象，防止页面崩溃
+        window.XLSX = {
+            utils: {
+                aoa_to_sheet: function() { return {}; },
+                json_to_sheet: function() { return {}; },
+                book_new: function() { return {}; },
+                book_append_sheet: function() {},
+                sheet_to_json: function() { return []; }
+            },
+            writeFile: function() { alert('XLSX库未加载，无法导出Excel文件'); },
+            write: function() { return []; }
+        };
+    }
+    </script>
+    
+    <!-- 分离后的模块文件 -->
+    <script src="js/dbManager.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/excel.js"></script>
+    <script src="js/deposits.js"></script>
+    <script src="js/fund.js"></script>
+    <script src="js/wealth.js"></script>
+    <script src="js/stocks.js"></script>
+    <script src="js/other.js"></script>
+    <script src="script.js"></script>
+    
+    <!-- 动态加载选项卡内容 -->
+    <script>
+        // 加载选项卡内容
+        async function loadTabContent(tabId) {
+            // 从文件加载，每次都重新获取
+            try {
+                const response = await fetch(`tabs/${tabId}.html?${Date.now()}`);
+                if (response.ok) {
+                    const content = await response.text();
+                    document.getElementById(tabId).innerHTML = content;
+                    // 调用对应初始化函数
+                    callInitFunction(tabId);
+                } else {
+                    console.error(`加载选项卡 ${tabId} 失败: ${response.status}`);
+                }
+            } catch (error) {
+                console.error(`加载选项卡 ${tabId} 出错:`, error);
+            }
+        }
+        
+        // 调用对应的初始化函数
+        function callInitFunction(tabId) {
+            // 根据tabId调用对应的初始化函数
+            switch (tabId) {
+                case 'overview':
+                    if (window.initOverview) {
+                        window.initOverview();
+                    }
+                    break;
+                case 'deposit':
+                    if (window.initDeposits) {
+                        window.initDeposits();
+                    }
+                    break;
+                case 'fund':
+                    if (window.initFund) {
+                        window.initFund();
+                    }
+                    break;
+                case 'wealth':
+                    if (window.initWealth) {
+                        window.initWealth();
+                    }
+                    break;
+                case 'stock':
+                    if (window.initStocks) {
+                        window.initStocks();
+                    }
+                    break;
+                case 'other':
+                    if (window.initOther) {
+                        window.initOther();
+                    }
+                    break;
+
+            }
+        }
+        
+        // 初始加载默认选项卡
+        window.addEventListener('DOMContentLoaded', () => {
+            loadTabContent('overview');
+        });
+        
+        // 监听选项卡切换事件
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('tab-btn')) {
+                const tabId = e.target.getAttribute('data-tab');
+                // 显示对应选项卡内容
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabId).classList.add('active');
+                
+                // 激活对应选项卡按钮
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                
+                // 加载选项卡内容
+                loadTabContent(tabId);
+            }
+        });
+        
+        // 将函数添加到window对象，以便在common.js中调用
+        window.loadTabContent = loadTabContent;
+        window.callInitFunction = callInitFunction;
+    </script>
+</body>
+</html>
